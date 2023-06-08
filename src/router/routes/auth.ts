@@ -1,4 +1,5 @@
 import type { RouteRecordRaw } from "vue-router";
+import useUserStore from "@/stores/user";
 
 export const authRoutes: readonly RouteRecordRaw[] = [
   {
@@ -13,7 +14,8 @@ export const authRoutes: readonly RouteRecordRaw[] = [
     path: "/logout",
     name: "auth.logout",
     redirect: () => {
-      // TODO: доделать
+      const userStore = useUserStore();
+      userStore.logout();
       return { name: "auth.login" };
     },
   },

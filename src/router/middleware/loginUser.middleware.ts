@@ -1,10 +1,11 @@
 import type { RouteLocationNormalized } from "vue-router";
-import useUserStore from "@/modules/auth/stores/user";
+import useUserStore from "@/stores/user";
+import centrifugo from "@/plugins/centrifuge";
 
 export const loginUserMiddleware = async (to: RouteLocationNormalized) => {
   const auth = useUserStore();
 
-  if (!auth.isLoggedIn) {
+  if (!auth.isAuthenticated) {
     const token: string | null = localStorage.getItem("web_token");
 
     if (token) {
@@ -13,7 +14,12 @@ export const loginUserMiddleware = async (to: RouteLocationNormalized) => {
     }
   }
 
-  if (!to.meta.guest && !auth.isLoggedIn) return { name: "auth.login" };
+  if (!centrifugo.isLoaded && auth.isAuthenticated) {
+    if (!auth.user) return;
+    if (auth.isAuthenticated) centrifugo.connect(auth.user.id);
+  }
+
+  if (!to.meta.guest && !auth.isAuthenticated) return { name: "auth.login" };
 
   return true;
 };
