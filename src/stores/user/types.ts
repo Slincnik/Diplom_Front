@@ -5,6 +5,7 @@ export type IUser = {
   lastname: string | null;
   avatar: string | null;
   is_verify: boolean;
+  fullname: string;
   created_at: string;
   cent_token: string;
 };
