@@ -12,8 +12,6 @@ const useUserStore = defineStore("user", {
   },
   actions: {
     setBearerToken(token: string | null = null) {
-      if (typeof token !== "string") return;
-
       if (token) {
         localStorage.setItem("web_token", token);
       } else {
@@ -43,7 +41,6 @@ const useUserStore = defineStore("user", {
     },
 
     async logout() {
-      await api.post("auth/logout");
       this.setBearerToken();
     },
   },
