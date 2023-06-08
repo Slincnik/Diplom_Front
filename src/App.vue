@@ -1,10 +1,20 @@
 <script setup lang="ts">
+import { onErrorCaptured } from "vue";
+import { ref } from "vue";
 import { RouterView } from "vue-router";
+
 import AppLayout from "./layouts/AppLayout.vue";
+
+const isError = ref(false);
+
+onErrorCaptured(() => (isError.value = true));
 </script>
 
 <template>
-  <AppLayout>
+  <template v-if="isError">
+    <h2>Случилась ошибка, перезагрузите страницу</h2>
+  </template>
+  <AppLayout v-else>
     <RouterView />
   </AppLayout>
 </template>
