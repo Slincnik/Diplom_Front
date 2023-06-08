@@ -11,6 +11,14 @@ export const authRoutes: readonly RouteRecordRaw[] = [
     },
   },
   {
+    path: "/register",
+    name: "auth.register",
+    component: () => import("@/modules/auth/pages/RegisterPage.vue"),
+    meta: {
+      guest: true,
+    },
+  },
+  {
     path: "/logout",
     name: "auth.logout",
     redirect: () => {
