@@ -35,7 +35,6 @@ const useUserStore = defineStore("user", {
 
     async fetchUserData() {
       const response = await api.get<ApiResponse, IUser>("auth/me");
-      console.log(response);
 
       return (this.user = response);
     },
