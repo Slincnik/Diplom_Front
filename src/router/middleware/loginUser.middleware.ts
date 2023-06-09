@@ -16,10 +16,12 @@ export const loginUserMiddleware = async (to: RouteLocationNormalized) => {
 
   if (!centrifugo.isLoaded && auth.isAuthenticated) {
     if (!auth.user) return;
-    if (auth.isAuthenticated) centrifugo.connect(auth.user.id);
+    centrifugo.connect(auth.user.id);
   }
 
   if (!to.meta.guest && !auth.isAuthenticated) return { name: "auth.login" };
+
+  if (to.meta.guest && auth.isAuthenticated) return { name: "home" };
 
   return true;
 };
