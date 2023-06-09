@@ -49,6 +49,7 @@ const toast = useToast();
 
 const userStore = useUserStore();
 const { user } = storeToRefs(userStore);
+
 const getInitials = (fullname: string) => {
   return fullname
     .split(" ")
@@ -79,7 +80,9 @@ const copyLogin = (login: string) => {
       console.error("Error to copy to clipboard");
     }
   }
+
   if (error.value) return;
+
   toast.info("Сохранено в буфер обмена", {
     position: POSITION.BOTTOM_RIGHT,
   });
