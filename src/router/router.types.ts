@@ -8,3 +8,11 @@ declare module "vue-router" {
     guest: boolean | null;
   }
 }
+
+export enum PAGES {
+  HOME = "home",
+  NOTFOUND = "NotFound",
+  LOGIN = "auth.login",
+  REGISTRATION = "auth.register",
+  LOGOUT = "auth.logout",
+}

@@ -1,10 +1,11 @@
 import type { RouteRecordRaw } from "vue-router";
 import useUserStore from "@/stores/user";
+import { PAGES } from "../router.types";
 
 export const authRoutes: readonly RouteRecordRaw[] = [
   {
     path: "/login",
-    name: "auth.login",
+    name: PAGES.LOGIN,
     component: () => import("@/modules/auth/pages/LoginPage.vue"),
     meta: {
       guest: true,
@@ -12,7 +13,7 @@ export const authRoutes: readonly RouteRecordRaw[] = [
   },
   {
     path: "/register",
-    name: "auth.register",
+    name: PAGES.REGISTRATION,
     component: () => import("@/modules/auth/pages/RegisterPage.vue"),
     meta: {
       guest: true,
@@ -20,11 +21,11 @@ export const authRoutes: readonly RouteRecordRaw[] = [
   },
   {
     path: "/logout",
-    name: "auth.logout",
+    name: PAGES.LOGOUT,
     redirect: () => {
       const userStore = useUserStore();
       userStore.logout();
-      return { name: "auth.login" };
+      return { name: PAGES.LOGIN };
     },
   },
 ];

@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { loadLayoutMiddleware } from "./middleware/loadLayout.middleware";
 import { loginUserMiddleware } from "./middleware/loginUser.middleware";
+import { PAGES } from "./router.types";
 import { authRoutes } from "./routes/auth";
 
 const router = createRouter({
@@ -8,12 +9,12 @@ const router = createRouter({
   routes: [
     {
       path: "/",
-      name: "home",
+      name: PAGES.HOME,
       component: () => import("@/modules/first/pages/TestPage.vue"),
     },
     {
       path: "/:pathMatch(.*)*",
-      name: "NotFound",
+      name: PAGES.NOTFOUND,
       component: () => import("@/components/NotFound.vue"),
     },
 

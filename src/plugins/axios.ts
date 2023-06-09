@@ -2,6 +2,7 @@ import axios, { AxiosError } from "axios";
 import { useToast } from "vue-toastification";
 import router from "@/router";
 import type { ServerError } from "./axios.types";
+import { PAGES } from "@/router/router.types";
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_AXIOS_URL,
@@ -30,7 +31,7 @@ api.interceptors.response.use(
 
     switch (axiosError?.response?.status) {
       case 401:
-        router.push({ name: "auth.logout" });
+        router.push({ name: PAGES.LOGOUT });
         break;
 
       case 403:
