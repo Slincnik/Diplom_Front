@@ -1,32 +1,31 @@
-import { Centrifuge } from "centrifuge";
-import useUserStore from "@/modules/auth/stores/user";
+import { Centrifuge, Subscription } from "centrifuge";
+import useUserStore from "@/stores/user";
 
 const centrifuge = new Centrifuge(import.meta.env.VITE_CENTRA_URL, {
-  websocket: WebSocket,
+  name: "diplom",
   debug: true,
-  getToken: () => {
+  websocket: WebSocket,
+  getToken() {
     const userStore = useUserStore();
-    return new Promise(resolve => {
-      resolve(userStore.user?.cent_token as string);
-    });
+    const user = userStore.user;
+
+    return Promise.resolve(user!.cent_token);
   },
 });
 
 const options = {
-  load: false,
+  isLoaded: false,
   instance: centrifuge,
+  subs: null as Subscription | null,
   connect: (id: number) => {
-    const subs = centrifuge.newSubscription(`personal:#${id}`);
+    options.subs = centrifuge.newSubscription(`user#${id}`);
 
-    subs.on("publication", ({ data }) => {
-      console.log(data);
-    });
+    options.subs.subscribe();
 
-    subs.subscribe();
     centrifuge.connect();
 
     // TODO: Подумать как сделать обработку ошибок, вдруг не подрубились
-    options.load = true;
+    options.isLoaded = true;
     centrifuge.on("error", ctx => {
       console.error(ctx);
     });
