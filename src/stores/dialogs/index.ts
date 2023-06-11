@@ -17,17 +17,33 @@ const useDialogsStore = defineStore("dialogs", {
       groups: [],
     };
   },
+  getters: {
+    getConversationOrGroup: state => {
+      if (!state.currentDialogId) return null;
+      return (
+        state.conversations.find(({ id }) => id === state.currentDialogId) ||
+        state.groups.find(({ id }) => id === state.currentDialogId) ||
+        null
+      );
+    },
+  },
   actions: {
-    setCurrentDialog(id: number) {
+    setCurrentDialog(id: number | null) {
+      if (!id) {
+        this.currentDialogId = null;
+        return;
+      }
+
+      if (this.currentDialogId === id) return;
       this.currentDialogId = +id;
     },
 
     async fetchDialogs() {
       const response = await api.get<ApiResponse, Dialogs>("dialogs");
-      this.conversations = orderConversationsOrGroups(response.conversations) as Conversation[];
+      this.conversations = response.conversations;
       this.conversations.forEach(conversation => conversation.messages.push(conversation.lastMessage));
 
-      this.groups = orderConversationsOrGroups(response.groups) as Group[];
+      this.groups = response.groups;
       this.groups.forEach(group => group.messages.push(group.lastMessage));
 
       return response;
@@ -38,8 +54,12 @@ const useDialogsStore = defineStore("dialogs", {
 
       if (!conversation) return;
 
-      conversation.lastMessage = message;
-      conversation.messages.push(message);
+      const newConversation = JSON.parse(JSON.stringify(conversation)) as Conversation;
+
+      newConversation.lastMessage = message;
+      newConversation.messages.push(message);
+
+      this.conversations = [newConversation, ...this.conversations];
 
       this.conversations = orderConversationsOrGroups(this.conversations) as Conversation[];
     },
@@ -49,14 +69,22 @@ const useDialogsStore = defineStore("dialogs", {
 
       if (!group) return;
 
-      group.lastMessage = message;
-      group.messages.push(message);
+      const newGroup = JSON.parse(JSON.stringify(group)) as Group;
+
+      newGroup.lastMessage = message;
+      newGroup.messages.push(message);
+
+      this.groups = [newGroup, ...this.groups];
 
       this.groups = orderConversationsOrGroups(this.groups) as Group[];
     },
 
     addNewConversation(conversation: Conversation) {
-      this.conversations.push(conversation);
+      this.conversations.unshift(conversation);
+    },
+
+    addNewGroup(group: Group) {
+      this.groups.unshift(group);
     },
 
     readMessagesInConversation(conversation_id: number, user_id: number, timestamp: string) {
