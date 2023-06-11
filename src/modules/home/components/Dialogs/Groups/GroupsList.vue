@@ -1,6 +1,6 @@
 <template>
-  <v-virtual-scroll :items="groups" item-height="40" height="822">
-    <template #default="{ item: group }: { item: Group }">
+  <div class="overflow-y-auto" style="height: 820px">
+    <template v-for="group in groups" :key="group.id">
       <v-list-item
         @click.prevent="dialogsStore.setCurrentDialog(group.id)"
         :class="{
@@ -17,7 +17,7 @@
       </v-list-item>
       <v-divider />
     </template>
-  </v-virtual-scroll>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -28,15 +28,11 @@ import useDialogsStore from "@/stores/dialogs";
 //Types
 import type { Group } from "@/modules/home/types/index.types";
 
-defineProps<{
-  groups: Group[];
-}>();
-
 const userStore = useUserStore();
 const dialogsStore = useDialogsStore();
 
 const { user } = storeToRefs(userStore);
-const { currentDialogId } = storeToRefs(dialogsStore);
+const { currentDialogId, groups } = storeToRefs(dialogsStore);
 
 const renderLastMessage = (group: Group) => {
   if (!user.value) return "";

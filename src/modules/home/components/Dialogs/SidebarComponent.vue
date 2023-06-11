@@ -7,21 +7,17 @@
   </v-card>
   <v-divider class="border-opacity-25" />
   <v-sheet>
-    <ConversationsList v-if="tab === 'conversations'" :conversations="conversations" />
-    <GroupsList v-else :groups="groups" />
+    <ConversationsList v-if="tab === 'conversations'" />
+    <GroupsList v-else />
   </v-sheet>
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { storeToRefs } from "pinia";
 import ConversationsList from "./Conversations/ConversationsList.vue";
 import GroupsList from "./Groups/GroupsList.vue";
-import useDialogsStore from "@/stores/dialogs";
 
 const tab = ref("conversations");
-const dialogsStore = useDialogsStore();
-const { conversations, groups } = storeToRefs(dialogsStore);
 </script>
 
 <style scoped>

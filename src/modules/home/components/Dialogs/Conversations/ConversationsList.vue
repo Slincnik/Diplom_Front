@@ -1,8 +1,8 @@
 <template>
-  <v-virtual-scroll :items="conversations" item-height="40" height="822">
-    <template #default="{ item: conversation }: { item: Conversation }">
+  <div class="overflow-y-auto" style="height: 820px">
+    <template v-for="conversation in conversations" :key="conversation.id">
       <v-list-item
-        @click.prevent="dialogsStore.setCurrentDialog(conversation.id)"
+        @click.stop="dialogsStore.setCurrentDialog(conversation.id)"
         :class="{
           'v-list-item--active': conversation.id == currentDialogId,
         }"
@@ -29,9 +29,8 @@
           <v-badge dot color="blue" />
         </template>
       </v-list-item>
-      <v-divider />
     </template>
-  </v-virtual-scroll>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -42,15 +41,11 @@ import useDialogsStore from "@/stores/dialogs";
 //Types
 import type { Conversation } from "@/modules/home/types/index.types";
 
-defineProps<{
-  conversations: Conversation[];
-}>();
-
 const userStore = useUserStore();
 const dialogsStore = useDialogsStore();
 
 const { user } = storeToRefs(userStore);
-const { currentDialogId } = storeToRefs(dialogsStore);
+const { currentDialogId, conversations } = storeToRefs(dialogsStore);
 
 const isFavorite = (conversation: Conversation) => {
   if (!user.value) return false;
