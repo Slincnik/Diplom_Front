@@ -10,7 +10,7 @@ const router = createRouter({
     {
       path: "/",
       name: PAGES.HOME,
-      component: () => import("@/modules/first/pages/TestPage.vue"),
+      component: () => import("@/modules/home/pages/HomePage.vue"),
     },
     {
       path: "/:pathMatch(.*)*",
