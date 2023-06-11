@@ -2,9 +2,9 @@
   <v-virtual-scroll :items="conversations" item-height="40" height="822">
     <template #default="{ item: conversation }: { item: Conversation }">
       <v-list-item
-        @click.prevent="clicked(conversation.id)"
+        @click.prevent="dialogsStore.setCurrentDialog(conversation.id)"
         :class="{
-          'v-list-item--active': conversation.id == selectedItem,
+          'v-list-item--active': conversation.id == currentDialogId,
         }"
       >
         <v-list-item-title class="d-flex justify-start"> {{ renderTitle(conversation) }}</v-list-item-title>
@@ -35,19 +35,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
 import { storeToRefs } from "pinia";
-import type { Conversation } from "@/modules/home/types/index.types";
 import useUserStore from "@/stores/user";
+import useDialogsStore from "@/stores/dialogs";
 
-const userStore = useUserStore();
-const { user } = storeToRefs(userStore);
-
-const selectedItem = ref(0);
+//Types
+import type { Conversation } from "@/modules/home/types/index.types";
 
 defineProps<{
   conversations: Conversation[];
 }>();
+
+const userStore = useUserStore();
+const dialogsStore = useDialogsStore();
+
+const { user } = storeToRefs(userStore);
+const { currentDialogId } = storeToRefs(dialogsStore);
 
 const isFavorite = (conversation: Conversation) => {
   if (!user.value) return false;
@@ -98,10 +101,5 @@ const renderChar = (conversation: Conversation) => {
   } else if (user.value.id === conversation.recipient.id) {
     return conversation.user.fullname.charAt(0);
   }
-};
-
-const clicked = (id: number) => {
-  console.log(id, "По мне кликнули");
-  selectedItem.value = id;
 };
 </script>
