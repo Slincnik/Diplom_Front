@@ -1,3 +1,5 @@
+import type { IUser } from "@/stores/user/types";
+
 type DialogUser = {
   id: number;
   name: string;
@@ -11,7 +13,7 @@ export type Conversation = {
   id: number;
   user: DialogUser;
   recipient: DialogUser;
-  messages: string[];
+  messages: Set<Message>;
   lastMessage: Message;
   created_at: string;
 };
@@ -40,7 +42,8 @@ export type Group = {
   name: string;
   creator: DialogUser;
   members: DialogUser[];
-  last_message: MessageGroup;
+  lastMessage: MessageGroup;
+  messages: Set<MessageGroup>;
   created_at: string;
 };
 
@@ -48,3 +51,81 @@ export type Dialogs = {
   conversations: Conversation[];
   groups: Group[];
 };
+
+type NewMessageFromCentrifugo = {
+  type: "NEW_MESSAGE";
+  conversation_id: number;
+  message: Message;
+};
+
+type AddConversationFromCentrifugo = {
+  type: "ADD_CONVERSATION";
+  conversation: Conversation;
+};
+
+type ReadMessagesFromCentrifugo = {
+  type: "READ_MESSAGES";
+  user_id: number;
+  conversation_id: number;
+  timestamp: string;
+};
+
+type EditMessageFromCentrifugo = {
+  type: "EDIT_MESSAGE";
+  conversation_id: number;
+  message: Message;
+};
+
+type DeleteMessagesFromCentrifugo = {
+  type: "DELETE_MESSAGES";
+  conversation_id: number;
+  messages: number[];
+};
+
+type AddGroupFromCentrifugo = {
+  type: "ADD_GROUP";
+  group: Group;
+};
+
+type AddedToGroupFromCentrifugo = {
+  type: "ADDED_TO_GROUP";
+  users: IUser[];
+  group: Group;
+};
+
+type DeleteFromGroupFromCentrifugo = {
+  type: "DELETE_FROM_GROUP";
+  user: number;
+  group_id: number;
+};
+
+type NewMessageInGroupFromCentrifugo = {
+  type: "NEW_MESSAGE_GROUP";
+  group_id: number;
+  message: MessageGroup;
+};
+
+type DeleteMessageInGroupFromCentrifugo = {
+  type: "DELETE_MESSAGE_GROUP";
+  group_id: number;
+  messages: number[];
+};
+
+type EditMessageInGroupFromCentrifugo = {
+  type: "EDIT_MESSAGE_GROUP";
+  group_id: number;
+  message: MessageGroup;
+};
+
+export type MessagesFromCentrifugo =
+  | NewMessageFromCentrifugo
+  | AddConversationFromCentrifugo
+  | ReadMessagesFromCentrifugo
+  | EditMessageFromCentrifugo
+  | DeleteMessagesFromCentrifugo
+  | AddGroupFromCentrifugo
+  | AddedToGroupFromCentrifugo
+  | DeleteFromGroupFromCentrifugo
+  | NewMessageInGroupFromCentrifugo
+  | DeleteMessageInGroupFromCentrifugo
+  | EditMessageInGroupFromCentrifugo;

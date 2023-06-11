@@ -66,13 +66,17 @@ const renderTitle = (conversation: Conversation) => {
     return "Избранное";
   }
 
-  return user.value.id === conversation.user.id ? conversation.user.name : conversation.recipient.name;
+  if (user.value.id === conversation.user.id) {
+    return conversation.recipient.fullname;
+  } else if (user.value.id === conversation.recipient.id) {
+    return conversation.user.fullname;
+  }
 };
 
 const renderLastMessage = (conversation: Conversation) => {
   if (!user.value) return "";
 
-  const createdConversation = !conversation.lastMessage && !conversation.messages.length;
+  const createdConversation = !conversation.lastMessage && !conversation.messages.size;
 
   if (createdConversation) {
     return `Личный чат создан`;
@@ -89,9 +93,11 @@ const renderLastMessage = (conversation: Conversation) => {
 const renderChar = (conversation: Conversation) => {
   if (!user.value) return "";
 
-  return user.value.id === conversation.user.id
-    ? conversation.user.name.charAt(0)
-    : conversation.recipient.name.charAt(0);
+  if (user.value.id === conversation.user.id) {
+    return conversation.recipient.fullname.charAt(0);
+  } else if (user.value.id === conversation.recipient.id) {
+    return conversation.user.fullname.charAt(0);
+  }
 };
 
 const clicked = (id: number) => {
