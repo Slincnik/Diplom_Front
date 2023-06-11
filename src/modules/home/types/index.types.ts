@@ -13,7 +13,7 @@ export type Conversation = {
   id: number;
   user: DialogUser;
   recipient: DialogUser;
-  messages: Set<Message>;
+  messages: Message[];
   lastMessage: Message;
   created_at: string;
 };
@@ -43,7 +43,7 @@ export type Group = {
   creator: DialogUser;
   members: DialogUser[];
   lastMessage: MessageGroup;
-  messages: Set<MessageGroup>;
+  messages: MessageGroup[];
   created_at: string;
 };
 

@@ -76,7 +76,7 @@ const renderTitle = (conversation: Conversation) => {
 const renderLastMessage = (conversation: Conversation) => {
   if (!user.value) return "";
 
-  const createdConversation = !conversation.lastMessage && !conversation.messages.size;
+  const createdConversation = !conversation.lastMessage && !conversation.messages.length;
 
   if (createdConversation) {
     return `Личный чат создан`;

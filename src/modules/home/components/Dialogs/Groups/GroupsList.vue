@@ -39,7 +39,7 @@ defineProps<{
 const renderLastMessage = (group: Group) => {
   if (!user.value) return "";
 
-  const createdGroup = !group.lastMessage && !group.messages.size;
+  const createdGroup = !group.lastMessage && !group.messages.length;
 
   if (createdGroup) {
     return `Группа создана`;

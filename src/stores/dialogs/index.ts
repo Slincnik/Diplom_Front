@@ -25,14 +25,10 @@ const useDialogsStore = defineStore("dialogs", {
     async fetchDialogs() {
       const response = await api.get<ApiResponse, Dialogs>("dialogs");
       this.conversations = orderConversationsOrGroups(response.conversations) as Conversation[];
-      this.conversations.forEach(conversation => {
-        conversation.messages = new Set([conversation.lastMessage]);
-      });
+      this.conversations.forEach(conversation => conversation.messages.push(conversation.lastMessage));
 
       this.groups = orderConversationsOrGroups(response.groups) as Group[];
-      this.groups.forEach(group => {
-        group.messages = new Set([group.lastMessage]);
-      });
+      this.groups.forEach(group => group.messages.push(group.lastMessage));
 
       return response;
     },
@@ -43,7 +39,7 @@ const useDialogsStore = defineStore("dialogs", {
       if (!conversation) return;
 
       conversation.lastMessage = message;
-      conversation.messages.add(message);
+      conversation.messages.push(message);
 
       this.conversations = orderConversationsOrGroups(this.conversations) as Conversation[];
     },
@@ -54,7 +50,7 @@ const useDialogsStore = defineStore("dialogs", {
       if (!group) return;
 
       group.lastMessage = message;
-      group.messages.add(message);
+      group.messages.push(message);
 
       this.groups = orderConversationsOrGroups(this.groups) as Group[];
     },
