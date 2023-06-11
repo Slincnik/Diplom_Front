@@ -12,6 +12,7 @@ const useUserStore = defineStore("user", {
   },
   actions: {
     setBearerToken(token: string | null = null) {
+      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       if (token) {
         localStorage.setItem("web_token", token);
       } else {
