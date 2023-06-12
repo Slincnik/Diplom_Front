@@ -2,12 +2,12 @@ import { defineStore } from "pinia";
 import type { Conversation, Dialogs, Group, Message, MessageGroup } from "@/modules/home/types/index.types";
 import { api, type ApiResponse } from "@/plugins/axios";
 import { orderConversationsOrGroups } from "@/modules/home/utils/orderConversationsOrGroups";
+import queryString from "query-string";
 
 type Cursor = {
   id: number;
-  type: "conversation" | "group";
-  nextCursor: string;
-  prevCursor: string;
+  type: "conversations" | "groups";
+  cursor: string | null;
 };
 interface State {
   currentDialogId: null | number;
@@ -52,55 +52,68 @@ const useDialogsStore = defineStore("dialogs", {
       this.conversations = response.conversations;
       this.conversations.forEach(conversation => {
         conversation.messages.push(conversation.lastMessage);
+        conversation.isLoaded = false;
         conversation.type = "conversation";
       });
 
       this.groups = response.groups;
       this.groups.forEach(group => {
         group.messages.push(group.lastMessage);
+        group.isLoaded = false;
         group.type = "group";
       });
 
       return response;
     },
 
-    async loadingMessages(type: "conversation" | "group") {
+    async loadingMessages(type: "conversation" | "group", newCursor?: Cursor) {
       if (type === "conversation") {
-        const { messages, prevCursor, nextCursor } = await api.get<
+        const { messages, cursor } = await api.get<
           ApiResponse,
           {
             messages: Message[];
-            nextCursor: string;
-            prevCursor: string;
+            cursor: string | null;
           }
-        >(`dialogs/conversation/${this.currentDialogId}/messages`);
+        >(
+          `dialogs/conversation/${this.currentDialogId}/messages?${queryString.stringify({
+            cursor: newCursor?.cursor,
+          })}`,
+        );
 
         const conversation = this.conversations.find(({ id }) => id === this.currentDialogId);
 
         if (!conversation) return;
 
+        conversation.isLoaded = true;
+
         conversation.messages.unshift(...messages);
 
-        conversation.isLoaded = true;
+        const hadCursor = this.cursors.find(({ id, type }) => id === this.currentDialogId && type === "conversations");
+
+        if (hadCursor) {
+          hadCursor.cursor = cursor;
+          return;
+        }
 
         this.cursors.push({
           id: this.currentDialogId!,
-          type: "conversation",
-          prevCursor,
-          nextCursor,
+          type: "conversations",
+          cursor,
         });
       }
 
       if (type === "group") {
-        console.log("Я НАЧАЛ ВЫПОЛНЕНИЕ");
-        const { messages, prevCursor, nextCursor } = await api.get<
+        const { messages, cursor } = await api.get<
           ApiResponse,
           {
             messages: Message[];
-            nextCursor: string;
-            prevCursor: string;
+            cursor: string | null;
           }
-        >(`dialogs/groups/${this.currentDialogId}/messages`);
+        >(
+          `dialogs/groups/${this.currentDialogId}/messages?${queryString.stringify({
+            cursor: newCursor?.cursor,
+          })}`,
+        );
 
         const group = this.groups.find(({ id }) => id === this.currentDialogId);
 
@@ -110,11 +123,17 @@ const useDialogsStore = defineStore("dialogs", {
 
         group.isLoaded = true;
 
+        const hadCursor = this.cursors.find(({ id, type }) => id === this.currentDialogId && type === "groups");
+
+        if (hadCursor) {
+          hadCursor.cursor = cursor;
+          return;
+        }
+
         this.cursors.push({
           id: this.currentDialogId!,
-          type: "group",
-          prevCursor,
-          nextCursor,
+          type: "groups",
+          cursor,
         });
       }
     },
