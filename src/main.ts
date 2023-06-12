@@ -38,7 +38,6 @@ import {
   VResponsive,
   VVirtualScroll,
   VFadeTransition,
-  VScrollXTransition,
 } from "vuetify/components";
 import * as directives from "vuetify/directives";
 
@@ -73,7 +72,6 @@ const vuetify = createVuetify({
     VResponsive,
     VVirtualScroll,
     VFadeTransition,
-    VScrollXTransition,
   },
   directives,
   theme: {
