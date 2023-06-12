@@ -7,20 +7,20 @@
           'v-list-item--active': conversation.id == currentDialogId,
         }"
       >
-        <v-list-item-title class="d-flex justify-start"> {{ renderTitle(conversation) }}</v-list-item-title>
+        <v-list-item-title class="d-flex justify-start"> {{ renderTitle(conversation, user) }}</v-list-item-title>
         <v-list-item-subtitle class="d-flex justify-start"> {{ renderLastMessage(conversation) }}</v-list-item-subtitle>
         <template v-slot:prepend>
           <v-avatar
             size="large"
             :class="{
-              'bg-blue': isFavorite(conversation),
-              'bg-brown': !isFavorite(conversation),
+              'bg-blue': isFavorite(conversation, user),
+              'bg-brown': !isFavorite(conversation, user),
             }"
           >
             <span class="text-h5">
-              <v-icon v-if="isFavorite(conversation)" icon="mdi-bookmark-outline" />
+              <v-icon v-if="isFavorite(conversation, user)" icon="mdi-bookmark-outline" />
               <template v-else>
-                {{ renderChar(conversation) }}
+                {{ renderChar(conversation, user) }}
               </template>
             </span>
           </v-avatar>
@@ -40,36 +40,13 @@ import useDialogsStore from "@/stores/dialogs";
 
 //Types
 import type { Conversation } from "@/modules/home/types/index.types";
+import { isFavorite, renderTitle, renderChar } from "@/modules/home/utils/conversationFunctions";
 
 const userStore = useUserStore();
 const dialogsStore = useDialogsStore();
 
 const { user } = storeToRefs(userStore);
 const { currentDialogId, conversations } = storeToRefs(dialogsStore);
-
-const isFavorite = (conversation: Conversation) => {
-  if (!user.value) return false;
-
-  if (user.value.id === conversation.user.id && user.value.id === conversation.recipient.id) {
-    return true;
-  }
-
-  return false;
-};
-
-const renderTitle = (conversation: Conversation) => {
-  if (!user.value) return "";
-
-  if (isFavorite(conversation)) {
-    return "Избранное";
-  }
-
-  if (user.value.id === conversation.user.id) {
-    return conversation.recipient.fullname;
-  } else if (user.value.id === conversation.recipient.id) {
-    return conversation.user.fullname;
-  }
-};
 
 const renderLastMessage = (conversation: Conversation) => {
   if (!user.value) return "";
@@ -80,21 +57,11 @@ const renderLastMessage = (conversation: Conversation) => {
     return `Личный чат создан`;
   } else {
     const isAuthor = conversation.lastMessage.sender.id === user.value.id;
-    if (isFavorite(conversation)) {
+    if (isFavorite(conversation, user.value)) {
       return conversation.lastMessage.body;
     }
 
     return `${isAuthor ? "Вы: " : ``} ${conversation.lastMessage.body}`;
-  }
-};
-
-const renderChar = (conversation: Conversation) => {
-  if (!user.value) return "";
-
-  if (user.value.id === conversation.user.id) {
-    return conversation.recipient.fullname.charAt(0);
-  } else if (user.value.id === conversation.recipient.id) {
-    return conversation.user.fullname.charAt(0);
   }
 };
 </script>
