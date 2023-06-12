@@ -44,10 +44,10 @@ const { isLoading } = useQuery({
   queryFn: dialogsStore.fetchDialogs,
 });
 
-watch(currentDialogId, newId => {
+watch([currentDialogId, tab], ([newId, newTab]) => {
   router.push({
     query: {
-      ...route.query,
+      tab: newTab,
       id: newId,
     },
   });
@@ -66,7 +66,7 @@ onMounted(() => {
     dialogsStore.setCurrentDialog(+route.query.id);
   }
 
-  if (route.query.tab !== tab.value) {
+  if (route.query.tab) {
     tab.value = route.query.tab as "conversations" | "groups";
   }
 
