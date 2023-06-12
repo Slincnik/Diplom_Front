@@ -26,7 +26,7 @@ const router = useRouter();
 watch(
   () => dialogStore.tab,
   () => {
-    dialogStore.currentDialogId = null;
+    dialogStore.setCurrentDialog(null);
     router.push({
       query: {
         tab: dialogStore.tab,
