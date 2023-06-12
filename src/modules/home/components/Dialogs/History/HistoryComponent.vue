@@ -30,9 +30,8 @@
       </template>
     </v-toolbar>
   </v-card>
-  <div class="scroll-container mb-2 mt-2 d-flex flex-column justify-end align-center">
-    <!-- <v-progress-circular v-if="isLoading" size="large" class="mx-auto justify-center align-center" indeterminate /> -->
-    <MessagesComponent ref="el" :messages="currentDialog!.messages" />
+  <div v-if="currentDialog" class="scroll-container mb-2 mt-2" ref="scrollRef">
+    <MessagesComponent :key="currentDialog?.id" :dialog="currentDialog" :scrollRef="scrollRef" />
   </div>
   <v-responsive class="mx-auto" max-width="790">
     <v-text-field
@@ -40,21 +39,22 @@
       single-line
       hide-details
       v-model="body"
-      append-inner-icon="mdi-send"
       variant="solo"
+      append-inner-icon="mdi-send"
       type="text"
       density="comfortable"
       label="Написать сообщение..."
       placeholder="Написать сообщение..."
       @click:append-inner="sendMessage"
       @keyup.enter="sendMessage"
+      :loading="isLoadingComputed"
     />
   </v-responsive>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUpdated } from "vue";
-import { useQuery } from "@tanstack/vue-query";
+import { ref, computed, onMounted } from "vue";
+import { useInfiniteScroll } from "@vueuse/core";
 import useDialogsStore from "@/stores/dialogs";
 import useUserStore from "@/stores/user";
 
@@ -66,33 +66,57 @@ import type { Conversation } from "@/modules/home/types/index.types";
 const dialogsStore = useDialogsStore();
 const userStore = useUserStore();
 
-const user = userStore.getUser;
-const currentDialog = computed(() => dialogsStore.getConversationOrGroup!(dialogsStore.tab));
-
+//Refs
 const body = ref("");
-const el = ref<HTMLElement | null>(null);
+const scrollRef = ref<HTMLElement | null>(null);
+const isFirstLoading = ref(false);
 
-const { refetch, isLoading, isRefetching } = useQuery({
-  queryKey: ["messages", currentDialog.value?.id],
-  queryFn: () => dialogsStore.loadingMessages(currentDialog.value!.type),
-  enabled: false,
+//Computed
+const user = userStore.getUser;
+const cursors = computed(() =>
+  dialogsStore.cursors.find(({ id, type }) => id === dialogsStore.currentDialogId && type === dialogsStore.tab),
+);
+const currentDialog = computed(() => dialogsStore.getConversationOrGroup!(dialogsStore.tab));
+const isLoadingComputed = computed(() => {
+  if (isFirstLoading.value) return true;
+
+  if (isLoadingMore.value && !cursors.value?.cursor) return false;
+
+  if (
+    isLoadingMore.value &&
+    scrollRef.value?.scrollHeight !== scrollRef.value?.clientHeight &&
+    scrollRef.value!.scrollTop <= 20
+  )
+    return true;
+
+  return false;
 });
 
-const loadingFirstMessages = () => {
+const { isLoading: isLoadingMore } = useInfiniteScroll(
+  scrollRef,
+  () => {
+    if (scrollRef.value?.scrollHeight === scrollRef.value?.clientHeight) return;
+
+    if (cursors.value && cursors.value.cursor) {
+      dialogsStore.loadingMessages(currentDialog.value!.type, cursors.value);
+    }
+  },
+  { distance: 10, direction: "top", interval: 1000 },
+);
+
+const loadingFirstMessages = async () => {
   if (!currentDialog.value) return;
 
   const isLoadedMessages = currentDialog.value.isLoaded;
 
   if (!isLoadedMessages) {
-    dialogsStore.loadingMessages(currentDialog.value.type);
+    isFirstLoading.value = true;
+    await dialogsStore.loadingMessages(currentDialog.value.type);
+    isFirstLoading.value = false;
   }
 };
 
 onMounted(() => {
-  loadingFirstMessages();
-});
-
-onUpdated(() => {
   loadingFirstMessages();
 });
 
@@ -103,7 +127,8 @@ const sendMessage = () => {
 
 <style scoped>
 .scroll-container {
-  height: 740px;
+  height: 100%;
+  max-height: 740px;
   overflow-y: auto;
 }
 * {

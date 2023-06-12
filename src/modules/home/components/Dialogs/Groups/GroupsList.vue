@@ -1,5 +1,5 @@
 <template>
-  <div class="overflow-y-auto" style="height: 820px">
+  <div class="overflow-y-auto fill-height">
     <template v-for="group in groups" :key="group.id">
       <v-list-item
         @click.prevent="dialogsStore.setCurrentDialog(group.id)"
