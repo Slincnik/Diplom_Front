@@ -1,5 +1,5 @@
 <template>
-  <div class="overflow-y-auto fill-height">
+  <div class="overflow-y-auto" style="height: 820px">
     <template v-for="group in groups" :key="group.id">
       <v-list-item
         @click.prevent="dialogsStore.setCurrentDialog(group.id)"
@@ -7,8 +7,10 @@
           'v-list-item--active': group.id == currentDialogId,
         }"
       >
-        <v-list-item-title class="d-flex justify-start"> {{ group.name }}</v-list-item-title>
-        <v-list-item-subtitle class="d-flex justify-start"> {{ renderLastMessage(group) }} </v-list-item-subtitle>
+        <v-list-item-title class="d-flex justify-start text-truncate"> {{ group.name }}</v-list-item-title>
+        <v-list-item-subtitle class="d-flex justify-start text-truncate">
+          {{ renderLastMessage(group) }}
+        </v-list-item-subtitle>
         <template v-slot:prepend>
           <v-avatar size="large" color="brown">
             <span class="text-h5">{{ group.name.charAt(0) }}</span>

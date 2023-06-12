@@ -7,8 +7,12 @@
           'v-list-item--active': conversation.id == currentDialogId,
         }"
       >
-        <v-list-item-title class="d-flex justify-start"> {{ renderTitle(conversation, user) }}</v-list-item-title>
-        <v-list-item-subtitle class="d-flex justify-start"> {{ renderLastMessage(conversation) }}</v-list-item-subtitle>
+        <v-list-item-title class="d-flex justify-start text-truncate">
+          {{ renderTitle(conversation, user) }}</v-list-item-title
+        >
+        <v-list-item-subtitle class="d-flex justify-start text-truncate">
+          {{ renderLastMessage(conversation) }}</v-list-item-subtitle
+        >
         <template v-slot:prepend>
           <v-avatar
             size="large"
