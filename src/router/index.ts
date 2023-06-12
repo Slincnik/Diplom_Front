@@ -15,7 +15,7 @@ const router = createRouter({
     {
       path: "/dashboard",
       name: PAGES.DASHBOARD,
-      component: () => import("@/modules/home/pages/HomePage.vue"),
+      component: () => import("@/modules/dashboard/pages/DashboardPage.vue"),
     },
     {
       path: "/:pathMatch(.*)*",
