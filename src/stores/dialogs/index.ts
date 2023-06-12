@@ -3,10 +3,18 @@ import type { Conversation, Dialogs, Group, Message, MessageGroup } from "@/modu
 import { api, type ApiResponse } from "@/plugins/axios";
 import { orderConversationsOrGroups } from "@/modules/home/utils/orderConversationsOrGroups";
 
+type Cursor = {
+  id: number;
+  type: "conversation" | "group";
+  nextCursor: string;
+  prevCursor: string;
+};
 interface State {
   currentDialogId: null | number;
   conversations: Conversation[];
   groups: Group[];
+  cursors: Cursor[];
+  tab: "conversations" | "groups";
 }
 
 const useDialogsStore = defineStore("dialogs", {
@@ -15,16 +23,17 @@ const useDialogsStore = defineStore("dialogs", {
       currentDialogId: null,
       conversations: [],
       groups: [],
+      cursors: [],
+      tab: "conversations",
     };
   },
   getters: {
     getConversationOrGroup: state => {
       if (!state.currentDialogId) return null;
-      return (
-        state.conversations.find(({ id }) => id === state.currentDialogId) ||
-        state.groups.find(({ id }) => id === state.currentDialogId) ||
-        null
-      );
+      return (tab: "conversations" | "groups") => {
+        if (tab === "conversations") return state.conversations.find(({ id }) => id === state.currentDialogId);
+        else if (tab === "groups") return state.groups.find(({ id }) => id === state.currentDialogId);
+      };
     },
   },
   actions: {
@@ -41,12 +50,73 @@ const useDialogsStore = defineStore("dialogs", {
     async fetchDialogs() {
       const response = await api.get<ApiResponse, Dialogs>("dialogs");
       this.conversations = response.conversations;
-      this.conversations.forEach(conversation => conversation.messages.push(conversation.lastMessage));
+      this.conversations.forEach(conversation => {
+        conversation.messages.push(conversation.lastMessage);
+        conversation.type = "conversation";
+      });
 
       this.groups = response.groups;
-      this.groups.forEach(group => group.messages.push(group.lastMessage));
+      this.groups.forEach(group => {
+        group.messages.push(group.lastMessage);
+        group.type = "group";
+      });
 
       return response;
+    },
+
+    async loadingMessages(type: "conversation" | "group") {
+      if (type === "conversation") {
+        const { messages, prevCursor, nextCursor } = await api.get<
+          ApiResponse,
+          {
+            messages: Message[];
+            nextCursor: string;
+            prevCursor: string;
+          }
+        >(`dialogs/conversation/${this.currentDialogId}/messages`);
+
+        const conversation = this.conversations.find(({ id }) => id === this.currentDialogId);
+
+        if (!conversation) return;
+
+        conversation.messages.unshift(...messages);
+
+        conversation.isLoaded = true;
+
+        this.cursors.push({
+          id: this.currentDialogId!,
+          type: "conversation",
+          prevCursor,
+          nextCursor,
+        });
+      }
+
+      if (type === "group") {
+        console.log("Я НАЧАЛ ВЫПОЛНЕНИЕ");
+        const { messages, prevCursor, nextCursor } = await api.get<
+          ApiResponse,
+          {
+            messages: Message[];
+            nextCursor: string;
+            prevCursor: string;
+          }
+        >(`dialogs/groups/${this.currentDialogId}/messages`);
+
+        const group = this.groups.find(({ id }) => id === this.currentDialogId);
+
+        if (!group) return;
+
+        group.messages.unshift(...messages);
+
+        group.isLoaded = true;
+
+        this.cursors.push({
+          id: this.currentDialogId!,
+          type: "group",
+          prevCursor,
+          nextCursor,
+        });
+      }
     },
 
     addMessageToConversation(conversation_id: number, message: Message) {

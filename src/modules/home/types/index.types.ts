@@ -15,7 +15,9 @@ export type Conversation = {
   recipient: DialogUser;
   messages: Message[];
   lastMessage: Message;
+  type: "conversation";
   created_at: string;
+  isLoaded: boolean;
 };
 
 export type Message = {
@@ -44,7 +46,9 @@ export type Group = {
   members: DialogUser[];
   lastMessage: MessageGroup;
   messages: MessageGroup[];
+  type: "group";
   created_at: string;
+  isLoaded: boolean;
 };
 
 export type Dialogs = {

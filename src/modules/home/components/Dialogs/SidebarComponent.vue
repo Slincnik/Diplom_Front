@@ -1,23 +1,23 @@
 <template>
   <v-card>
-    <v-tabs v-model="tab" fixed-tabs>
+    <v-tabs v-model="dialogStore.tab" fixed-tabs>
       <v-tab value="conversations"> Диалоги </v-tab>
       <v-tab value="groups"> Группы </v-tab>
     </v-tabs>
   </v-card>
   <v-divider class="border-opacity-25" />
   <v-sheet>
-    <ConversationsList v-if="tab === 'conversations'" />
+    <ConversationsList v-if="dialogStore.tab === 'conversations'" />
     <GroupsList v-else />
   </v-sheet>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import useDialogsStore from "@/stores/dialogs";
 import ConversationsList from "./Conversations/ConversationsList.vue";
 import GroupsList from "./Groups/GroupsList.vue";
 
-const tab = ref("conversations");
+const dialogStore = useDialogsStore();
 </script>
 
 <style scoped>
