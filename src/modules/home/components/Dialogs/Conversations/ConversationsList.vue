@@ -25,9 +25,9 @@
             </span>
           </v-avatar>
         </template>
-        <template v-if="!conversation.lastMessage.read_at" v-slot:append>
+        <!-- <template v-if="!conversation.lastMessage.read_at" v-slot:append>
           <v-badge dot color="blue" />
-        </template>
+        </template> -->
       </v-list-item>
     </template>
   </div>
