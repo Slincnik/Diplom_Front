@@ -11,14 +11,14 @@
     </v-col>
     <v-divider vertical />
     <v-col sm="10">
-      <HistoryComponent v-if="currentDialogId" :key="currentDialogId" />
+      <HistoryComponent v-if="currentDialog" />
       <div v-else class="fill-height d-flex flex-column justify-center align-center">Выберите чат</div>
     </v-col>
   </v-row>
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, watch } from "vue";
+import { computed, onMounted, onUnmounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useQuery } from "@tanstack/vue-query";
 import { storeToRefs } from "pinia";
@@ -35,7 +35,9 @@ const dialogsStore = useDialogsStore();
 const router = useRouter();
 const route = useRoute();
 
-const { currentDialogId } = storeToRefs(dialogsStore);
+const { currentDialogId, tab } = storeToRefs(dialogsStore);
+
+const currentDialog = computed(() => dialogsStore.getConversationOrGroup);
 
 const { isLoading } = useQuery({
   queryKey: ["dialogs"],
@@ -59,6 +61,14 @@ const listener = (event: KeyboardEvent) => {
 
 onMounted(() => {
   if (!centra.subs) return;
+
+  if (route.query.id) {
+    dialogsStore.setCurrentDialog(+route.query.id);
+  }
+
+  if (route.query.tab !== tab.value) {
+    tab.value = route.query.tab as "conversations" | "groups";
+  }
 
   centra.subs.on("publication", ({ data }: { data: MessagesFromCentrifugo }) => {
     if (data.type === "NEW_MESSAGE") {

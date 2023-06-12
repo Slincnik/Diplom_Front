@@ -53,7 +53,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useInfiniteScroll } from "@vueuse/core";
 import useDialogsStore from "@/stores/dialogs";
 import useUserStore from "@/stores/user";
@@ -76,7 +76,7 @@ const user = userStore.getUser;
 const cursors = computed(() =>
   dialogsStore.cursors.find(({ id, type }) => id === dialogsStore.currentDialogId && type === dialogsStore.tab),
 );
-const currentDialog = computed(() => dialogsStore.getConversationOrGroup!(dialogsStore.tab));
+const currentDialog = computed(() => dialogsStore.getConversationOrGroup);
 const isLoadingComputed = computed(() => {
   if (isFirstLoading.value) return true;
 
@@ -91,6 +91,14 @@ const isLoadingComputed = computed(() => {
 
   return false;
 });
+
+watch(
+  () => currentDialog.value,
+  newDialog => {
+    if (!newDialog) return;
+    loadingFirstMessages();
+  },
+);
 
 const { isLoading: isLoadingMore } = useInfiniteScroll(
   scrollRef,

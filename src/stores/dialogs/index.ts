@@ -30,10 +30,10 @@ const useDialogsStore = defineStore("dialogs", {
   getters: {
     getConversationOrGroup: state => {
       if (!state.currentDialogId) return null;
-      return (tab: "conversations" | "groups") => {
-        if (tab === "conversations") return state.conversations.find(({ id }) => id === state.currentDialogId);
-        else if (tab === "groups") return state.groups.find(({ id }) => id === state.currentDialogId);
-      };
+      if (state.tab === "conversations")
+        return state.conversations.find(({ id }) => id === state.currentDialogId) as Conversation;
+      else if (state.tab === "groups") return state.groups.find(({ id }) => id === state.currentDialogId) as Group;
+      else return null;
     },
   },
   actions: {
