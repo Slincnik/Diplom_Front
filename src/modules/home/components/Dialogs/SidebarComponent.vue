@@ -6,18 +6,34 @@
     </v-tabs>
   </v-card>
   <v-divider class="border-opacity-25" />
-  <v-sheet>
+  <v-sheet :key="dialogStore.tab" class="fill-height rounded-lg" style="max-height: 823px">
     <ConversationsList v-if="dialogStore.tab === 'conversations'" />
     <GroupsList v-else />
   </v-sheet>
 </template>
 
 <script setup lang="ts">
+import { watch } from "vue";
+import { useRouter } from "vue-router";
 import useDialogsStore from "@/stores/dialogs";
 import ConversationsList from "./Conversations/ConversationsList.vue";
 import GroupsList from "./Groups/GroupsList.vue";
 
 const dialogStore = useDialogsStore();
+
+const router = useRouter();
+
+watch(
+  () => dialogStore.tab,
+  () => {
+    dialogStore.currentDialogId = null;
+    router.push({
+      query: {
+        tab: dialogStore.tab,
+      },
+    });
+  },
+);
 </script>
 
 <style scoped>
