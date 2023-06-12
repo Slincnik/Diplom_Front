@@ -15,4 +15,5 @@ export enum PAGES {
   LOGIN = "auth.login",
   REGISTRATION = "auth.register",
   LOGOUT = "auth.logout",
+  DASHBOARD = "dashboard",
 }

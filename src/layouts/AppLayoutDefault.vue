@@ -2,8 +2,9 @@
   <main>
     <v-app>
       <v-app-bar :elevation="2" rounded>
-        <v-app-bar-title>Messenger</v-app-bar-title>
+        <v-app-bar-title> Messenger </v-app-bar-title>
         <template v-if="user" v-slot:append>
+          <v-btn prepend-icon="mdi-view-dashboard" class="mr-2" :to="{ name: PAGES.DASHBOARD }"> Dashboard </v-btn>
           <v-menu rounded min-width="200px">
             <template v-slot:activator="{ props }">
               <v-btn icon v-bind="props">
@@ -44,6 +45,7 @@ import { ref } from "vue";
 import { storeToRefs } from "pinia";
 import { POSITION, useToast } from "vue-toastification";
 import useUserStore from "@/stores/user";
+import { PAGES } from "@/router/router.types";
 
 const toast = useToast();
 

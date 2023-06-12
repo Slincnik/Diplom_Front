@@ -13,6 +13,11 @@ const router = createRouter({
       component: () => import("@/modules/home/pages/HomePage.vue"),
     },
     {
+      path: "/dashboard",
+      name: PAGES.DASHBOARD,
+      component: () => import("@/modules/home/pages/HomePage.vue"),
+    },
+    {
       path: "/:pathMatch(.*)*",
       name: PAGES.NOTFOUND,
       component: () => import("@/components/NotFound.vue"),
