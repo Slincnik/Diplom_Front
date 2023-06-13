@@ -173,7 +173,7 @@ const sendMessage = () => {
       return;
     }
 
-    dialogsStore.editMessage(body.value, messageItem.value.id, recipientId.value).then(() => {
+    dialogsStore.editMessage(body.value, messageItem.value.id).then(() => {
       isAddLoading.value = false;
       isEditing.value = false;
     });

@@ -176,11 +176,12 @@ const useDialogsStore = defineStore("dialogs", {
       }
     },
 
-    async editMessage(newMessage: string, messageId: number, userId?: number) {
+    async editMessage(newMessage: string, messageId: number) {
       this.editMessageInDialog(newMessage, messageId);
 
       if (this.tab === "conversations") {
-        await api.put(`dialogs/conversation/${userId}/messages/${messageId}`, {
+        console.log(this.currentDialogId);
+        await api.put(`dialogs/conversation/${this.currentDialogId}/messages/${messageId}`, {
           message: newMessage,
         });
       }
@@ -266,6 +267,7 @@ const useDialogsStore = defineStore("dialogs", {
       if (!message) return;
 
       message.body = newMessage;
+      message.updated_at = new Date().toUTCString();
     },
   },
 });
