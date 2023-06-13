@@ -55,12 +55,18 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from "vue";
 import { useInfiniteScroll } from "@vueuse/core";
+
+// Stores
 import useDialogsStore from "@/stores/dialogs";
 import useUserStore from "@/stores/user";
 
+// Components
+import MessagesComponent from "./MessagesComponent.vue";
+
+// Utils
 import { renderChar, renderTitle, isFavorite, giveRecipientId } from "@/modules/home/utils/conversationFunctions";
 
-import MessagesComponent from "./MessagesComponent.vue";
+//Types
 import type { Conversation } from "@/modules/home/types/index.types";
 
 const dialogsStore = useDialogsStore();
@@ -137,10 +143,6 @@ const loadingFirstMessages = async () => {
   }
 };
 
-onMounted(() => {
-  loadingFirstMessages();
-});
-
 const sendMessage = () => {
   if (!body.value) return;
   isAddLoading.value = true;
@@ -150,6 +152,10 @@ const sendMessage = () => {
   });
   body.value = "";
 };
+
+onMounted(() => {
+  loadingFirstMessages();
+});
 </script>
 
 <style scoped>

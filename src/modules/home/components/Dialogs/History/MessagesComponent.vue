@@ -54,13 +54,14 @@
 
 <script setup lang="ts">
 import { ref, onMounted, nextTick, watch, reactive } from "vue";
-import useUserStore from "@/stores/user";
-import type { Conversation, Group, Message, MessageGroup } from "@/modules/home/types/index.types";
-import useDialogsStore from "@/stores/dialogs";
 import { POSITION, useToast } from "vue-toastification";
 
-const userStore = useUserStore();
-const dialogsStore = useDialogsStore();
+// Stores
+import useUserStore from "@/stores/user";
+import useDialogsStore from "@/stores/dialogs";
+
+//Types
+import type { Conversation, Group, Message, MessageGroup } from "@/modules/home/types/index.types";
 
 const menuItemsOriginal = [
   {
@@ -89,6 +90,15 @@ const menuItemsOriginal = [
   },
 ];
 
+const props = defineProps<{
+  scrollRef: HTMLElement | null;
+  dialog: Conversation | Group;
+}>();
+
+const userStore = useUserStore();
+const dialogsStore = useDialogsStore();
+const toast = useToast();
+
 const endMessagesRef = ref<HTMLElement | null>(null);
 const showMenu = ref(false);
 const menuSettings = ref({
@@ -98,6 +108,8 @@ const menuSettings = ref({
 const menuItems = reactive([...menuItemsOriginal]);
 const currentItem = ref<Message | MessageGroup | null>(null);
 
+const user = userStore.getUser;
+
 watch(showMenu, value => {
   if (!value) {
     setTimeout(() => {
@@ -106,7 +118,13 @@ watch(showMenu, value => {
   }
 });
 
-const toast = useToast();
+watch(
+  () => props.dialog.isLoaded,
+  isLoaded => {
+    if (!isLoaded) return;
+    scrollToTop();
+  },
+);
 
 const menuClicked = async (event: "delete" | "edit" | "copy" | "reply") => {
   if (!currentItem.value) return;
@@ -145,13 +163,6 @@ const menuClicked = async (event: "delete" | "edit" | "copy" | "reply") => {
     });
   }
 };
-
-const user = userStore.getUser;
-
-const props = defineProps<{
-  scrollRef: HTMLElement | null;
-  dialog: Conversation | Group;
-}>();
 
 const formatDate = (value: string) => {
   return Intl.DateTimeFormat(navigator.language, {
@@ -204,21 +215,6 @@ const scrollToTop = (behavior: "auto" | "smooth" = "auto") => {
 };
 
 onMounted(scrollToTop);
-
-watch(
-  () => props.dialog.isLoaded,
-  isLoaded => {
-    if (!isLoaded) return;
-    scrollToTop();
-  },
-);
-
-// onUpdated(() => {
-//   if (isFirstLoadingMessages.value) {
-//     scrollToTop();
-//     isFirstLoadingMessages.value = false;
-//   }
-// });
 </script>
 
 <style scoped>
