@@ -57,6 +57,7 @@ import { ref, onMounted, nextTick, watch, reactive } from "vue";
 import useUserStore from "@/stores/user";
 import type { Conversation, Group, Message, MessageGroup } from "@/modules/home/types/index.types";
 import useDialogsStore from "@/stores/dialogs";
+import { POSITION, useToast } from "vue-toastification";
 
 const userStore = useUserStore();
 const dialogsStore = useDialogsStore();
@@ -105,11 +106,43 @@ watch(showMenu, value => {
   }
 });
 
+const toast = useToast();
+
 const menuClicked = async (event: "delete" | "edit" | "copy" | "reply") => {
   if (!currentItem.value) return;
 
   if (event === "delete") {
     await dialogsStore.deleteMessage(currentItem.value.id);
+  }
+
+  if (event === "copy") {
+    const error = ref(false);
+    const unsecuredCopyToClipboard = (text: string) => {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textArea);
+    };
+
+    if (window.isSecureContext && navigator.clipboard) {
+      navigator.clipboard.writeText(currentItem.value.body);
+    } else {
+      try {
+        unsecuredCopyToClipboard(currentItem.value.body);
+      } catch (e) {
+        error.value = true;
+        console.error("Error to copy to clipboard");
+      }
+    }
+
+    if (error.value) return;
+
+    toast.info("Сохранено в буфер обмена", {
+      position: POSITION.TOP_CENTER,
+    });
   }
 };
 
