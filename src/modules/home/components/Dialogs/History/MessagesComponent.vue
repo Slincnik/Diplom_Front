@@ -13,7 +13,7 @@
         ]"
         :color="item.sender.id === user?.id ? 'blue' : 'gray'"
         max-width="300px"
-        @contextmenu.prevent="RMBClick($event, item)"
+        @contextmenu.prevent="(event: MouseEvent) => RMBClick(event, item)"
       >
         <v-list-item-title class="text-wrap text-white text-right">
           {{ item.body }}
@@ -39,7 +39,7 @@
     >
       <v-list class="rounded-lg">
         <v-list-item class="onHover rounded-lg mx-1" v-for="item in menuItems" :key="item.id">
-          <div class="d-flex" @click="item.clicked">
+          <div class="d-flex" @click.prevent="menuClicked(item.type as 'reply' | 'delete' | 'copy')">
             <v-icon :icon="item.icon" />
             <span class="ml-2">
               {{ item.title }}
@@ -56,45 +56,35 @@
 import { ref, onMounted, nextTick, watch, reactive } from "vue";
 import useUserStore from "@/stores/user";
 import type { Conversation, Group, Message, MessageGroup } from "@/modules/home/types/index.types";
+import useDialogsStore from "@/stores/dialogs";
 
 const userStore = useUserStore();
+const dialogsStore = useDialogsStore();
 
 const menuItemsOriginal = [
   {
     id: 1,
     title: "Ответить",
     icon: "mdi-reply",
-    view: true,
-    clicked: () => {
-      console.log("hehe");
-    },
+    type: "reply",
   },
   {
     id: 2,
     title: "Изменить",
     icon: "mdi-pencil-outline",
-    view: true,
-    clicked: () => {
-      console.log("hehe");
-    },
+    type: "edit",
   },
   {
     id: 3,
     title: "Копировать текст",
     icon: "mdi-content-copy",
-    view: true,
-    clicked: () => {
-      console.log("hehe");
-    },
+    type: "copy",
   },
   {
     id: 4,
     title: "Удалить",
     icon: "mdi-delete",
-    view: true,
-    clicked: (item: Message | MessageGroup) => {
-      console.log("hehe", item);
-    },
+    type: "delete",
   },
 ];
 
@@ -105,6 +95,7 @@ const menuSettings = ref({
   y: 0,
 });
 const menuItems = reactive([...menuItemsOriginal]);
+const currentItem = ref<Message | MessageGroup | null>(null);
 
 watch(showMenu, value => {
   if (!value) {
@@ -113,6 +104,14 @@ watch(showMenu, value => {
     }, 300);
   }
 });
+
+const menuClicked = async (event: "delete" | "edit" | "copy" | "reply") => {
+  if (!currentItem.value) return;
+
+  if (event === "delete") {
+    await dialogsStore.deleteMessage(currentItem.value.id);
+  }
+};
 
 const user = userStore.getUser;
 
@@ -130,11 +129,14 @@ const formatDate = (value: string) => {
 };
 
 const RMBClick = (event: MouseEvent, item: Message | MessageGroup) => {
-  showMenu.value = false;
   menuSettings.value = {
     x: event.clientX,
     y: event.clientY,
   };
+
+  currentItem.value = item;
+
+  Object.assign(menuItems, menuItemsOriginal);
 
   menuItems.forEach(menu => {
     if (menu.id === 2 && item.sender.id !== user?.id) {
@@ -149,8 +151,6 @@ const RMBClick = (event: MouseEvent, item: Message | MessageGroup) => {
         menuItems.findIndex(menu => menu.id === 4),
         1,
       );
-
-    menu.clicked.bind(item);
   });
 
   nextTick(() => {

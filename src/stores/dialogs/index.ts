@@ -138,17 +138,22 @@ const useDialogsStore = defineStore("dialogs", {
       }
     },
 
+    async deleteMessage(messageId: number) {
+      this.deleteMessageInDialog(messageId);
+      await api.delete(`dialogs/conversation/${this.currentDialogId}/messages`, {
+        data: {
+          messages: [messageId],
+        },
+      });
+    },
+
     addMessageToConversation(conversation_id: number, message: Message) {
       const conversation = this.conversations.find(({ id }) => id === conversation_id);
 
       if (!conversation) return;
 
-      const newConversation = JSON.parse(JSON.stringify(conversation)) as Conversation;
-
-      newConversation.lastMessage = message;
-      newConversation.messages.push(message);
-
-      this.conversations = [newConversation, ...this.conversations];
+      conversation.lastMessage = message;
+      conversation.messages.push(message);
 
       this.conversations = orderConversationsOrGroups(this.conversations) as Conversation[];
     },
@@ -158,12 +163,8 @@ const useDialogsStore = defineStore("dialogs", {
 
       if (!group) return;
 
-      const newGroup = JSON.parse(JSON.stringify(group)) as Group;
-
-      newGroup.lastMessage = message;
-      newGroup.messages.push(message);
-
-      this.groups = [newGroup, ...this.groups];
+      group.lastMessage = message;
+      group.messages.push(message);
 
       this.groups = orderConversationsOrGroups(this.groups) as Group[];
     },
@@ -186,6 +187,25 @@ const useDialogsStore = defineStore("dialogs", {
 
         message.read_at = timestamp;
       });
+    },
+
+    deleteMessageInDialog(messageId: number) {
+      const dialog = this.getConversationOrGroup;
+
+      if (!dialog) return;
+
+      const message = dialog.messages.find(({ id }) => id === messageId);
+
+      if (!message) return;
+
+      dialog.messages.splice(
+        dialog.messages.findIndex(({ id }) => id === messageId),
+        1,
+      );
+
+      if (message.id === dialog.lastMessage.id) {
+        dialog.lastMessage = dialog.messages.at(-1) as Message | MessageGroup;
+      }
     },
   },
 });
