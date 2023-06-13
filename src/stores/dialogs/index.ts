@@ -217,19 +217,11 @@ const useDialogsStore = defineStore("dialogs", {
     deleteMessageInDialog(messageId: number) {
       const dialog = this.getConversationOrGroup;
 
-      console.log("В ПОИСКЕ ДИАЛОГА");
-
       if (!dialog) return;
-
-      console.log("НАШЕЛ ДИАЛОГ", dialog);
 
       const message = dialog.messages.find(({ id }) => id === messageId);
 
-      console.log("В ПОИСКЕ СООБЩЕНИЯ", messageId);
-
       if (!message) return;
-
-      console.log("НАШЕЛ СООБЩЕНИЕ", message);
 
       dialog.messages.splice(
         dialog.messages.findIndex(({ id }) => id === messageId),
@@ -239,6 +231,9 @@ const useDialogsStore = defineStore("dialogs", {
       if (message.id === dialog.lastMessage.id) {
         dialog.lastMessage = dialog.messages.at(-1) as Message | MessageGroup;
       }
+
+      this.conversations = orderConversationsOrGroups(this.conversations) as Conversation[];
+      this.groups = orderConversationsOrGroups(this.groups) as Group[];
     },
   },
 });
