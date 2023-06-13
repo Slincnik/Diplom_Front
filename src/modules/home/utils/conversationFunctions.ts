@@ -11,6 +11,18 @@ export const isFavorite = (conversation: Conversation, user: IUser | null) => {
   return false;
 };
 
+export const giveRecipientId = (conversation: Conversation, user: IUser) => {
+  if (isFavorite(conversation, user)) {
+    return user.id;
+  }
+
+  if (user.id === conversation.user.id) {
+    return conversation.recipient.id;
+  } else if (user.id === conversation.recipient.id) {
+    return conversation.user.id;
+  }
+};
+
 export const renderTitle = (conversation: Conversation, user: IUser | null) => {
   if (!user) return "";
 

@@ -138,6 +138,20 @@ const useDialogsStore = defineStore("dialogs", {
       }
     },
 
+    async storeMessage(body: string, userId?: number) {
+      if (this.tab === "conversations") {
+        await api.post<ApiResponse>(`dialogs/conversation/${userId}`, {
+          body,
+        });
+      }
+
+      if (this.tab === "groups") {
+        await api.post(`dialogs/groups/${this.currentDialogId}`, {
+          body,
+        });
+      }
+    },
+
     async deleteMessage(messageId: number) {
       this.deleteMessageInDialog(messageId);
 
@@ -203,11 +217,19 @@ const useDialogsStore = defineStore("dialogs", {
     deleteMessageInDialog(messageId: number) {
       const dialog = this.getConversationOrGroup;
 
+      console.log("В ПОИСКЕ ДИАЛОГА");
+
       if (!dialog) return;
+
+      console.log("НАШЕЛ ДИАЛОГ", dialog);
 
       const message = dialog.messages.find(({ id }) => id === messageId);
 
+      console.log("В ПОИСКЕ СООБЩЕНИЯ", messageId);
+
       if (!message) return;
+
+      console.log("НАШЕЛ СООБЩЕНИЕ", message);
 
       dialog.messages.splice(
         dialog.messages.findIndex(({ id }) => id === messageId),

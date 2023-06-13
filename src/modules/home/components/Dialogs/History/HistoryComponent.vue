@@ -58,7 +58,7 @@ import { useInfiniteScroll } from "@vueuse/core";
 import useDialogsStore from "@/stores/dialogs";
 import useUserStore from "@/stores/user";
 
-import { renderChar, renderTitle, isFavorite } from "@/modules/home/utils/conversationFunctions";
+import { renderChar, renderTitle, isFavorite, giveRecipientId } from "@/modules/home/utils/conversationFunctions";
 
 import MessagesComponent from "./MessagesComponent.vue";
 import type { Conversation } from "@/modules/home/types/index.types";
@@ -70,6 +70,7 @@ const userStore = useUserStore();
 const body = ref("");
 const scrollRef = ref<HTMLElement | null>(null);
 const isFirstLoading = ref(false);
+const isAddLoading = ref(false);
 
 //Computed
 const user = userStore.getUser;
@@ -79,6 +80,8 @@ const cursors = computed(() =>
 const currentDialog = computed(() => dialogsStore.getConversationOrGroup);
 const isLoadingComputed = computed(() => {
   if (isFirstLoading.value) return true;
+
+  if (isAddLoading.value) return true;
 
   if (isLoadingMore.value && !cursors.value?.cursor) return false;
 
@@ -90,6 +93,16 @@ const isLoadingComputed = computed(() => {
     return true;
 
   return false;
+});
+const recipientId = computed(() => {
+  if (!currentDialog.value) return 0;
+
+  if (!user) return 0;
+
+  if (dialogsStore.tab === "groups") return 0;
+
+  const conversation = currentDialog.value as Conversation;
+  return giveRecipientId(conversation, user);
 });
 
 watch(
@@ -129,7 +142,13 @@ onMounted(() => {
 });
 
 const sendMessage = () => {
-  console.log("sending message");
+  if (!body.value) return;
+  isAddLoading.value = true;
+
+  dialogsStore.storeMessage(body.value, recipientId.value).then(() => {
+    isAddLoading.value = false;
+  });
+  body.value = "";
 };
 </script>
 
