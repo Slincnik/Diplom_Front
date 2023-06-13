@@ -1,7 +1,7 @@
 <template>
-  <div class="bg-default fill-height d-flex overflow-x-auto">
-    <PageLoadingSpinner v-if="!board" />
-    <v-fade-transition v-else group>
+  <v-progress-circular v-if="!board" size="large" class="mx-auto" indeterminate />
+  <div v-else class="bg-default fill-height d-flex overflow-x-auto">
+    <v-fade-transition group>
       <div
         v-for="column in board.columns"
         :key="column.id"
@@ -9,75 +9,123 @@
       >
         <div class="d-flex align-center justify-space-between mx-auto">
           <p class="font-weight-medium ml-4">{{ column.title }}</p>
-          <v-btn variant="text" @click="removeColumn(column.id)" size="36" icon="mdi-dots-vertical" />
+          <v-btn variant="text" @click="removeColumn(column.id)" size="36" icon="mdi-close" />
         </div>
         <v-divider />
-        <draggable
-          v-model="column.cards"
-          class="list-group overflow-y-auto"
+        <draggableComponent
           :list="column.cards"
+          class="list-group overflow-y-auto"
           v-bind="dragOptions"
           :item-key="column.title"
           group="columns"
           ghost-class="ghost-card"
         >
           <template #item="{ element }: { element: Card }">
-            <CardComponent :key="element.id" :card="element" />
+            <CardComponent class="cursor-grable" :key="element.id" @delete-click="removeCard" :card="element" />
           </template>
-        </draggable>
+        </draggableComponent>
         <v-divider />
         <div class="ma-2 mx-auto">
-          <v-btn>Добавить карточку</v-btn>
+          <v-btn @click="showAddCardComponent(column)">Добавить карточку</v-btn>
         </div>
       </div>
     </v-fade-transition>
     <div class="my-2">
-      <v-btn prepend-icon="mdi-plus" :loading="isLoading" @click="addColumn">Добавить столбец</v-btn>
+      <v-btn prepend-icon="mdi-plus" :loading="isLoading" @click="showAddColumnDialog = true">Добавить столбец</v-btn>
     </div>
+    <AddColumnComponent
+      v-model="showAddColumnDialog"
+      @click-to-create="addColumn"
+      @close-dialog="showAddColumnDialog = false"
+    />
+    <AddCardComponent
+      v-model="showAddCardDialog"
+      @click-to-create="addCard"
+      @close-dialog="showAddCardDialog = false"
+    />
   </div>
 </template>
 <script setup lang="ts">
 import { onMounted, computed, ref } from "vue";
 import { storeToRefs } from "pinia";
-import draggable from "vuedraggable";
+import draggableComponent from "vuedraggable";
 
-import PageLoadingSpinner from "@/components/PageLoadingSpinner.vue";
 import useDashboardStore from "@/stores/dashboard";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import type { Card } from "@/stores/dashboard/types";
+import type { Card, Column } from "@/stores/dashboard/types";
+
+//Components
 import CardComponent from "../components/CardComponent.vue";
+import AddColumnComponent from "../components/AddColumnComponent.vue";
+import AddCardComponent from "../components/AddCardComponent.vue";
 
 const dashboardStore = useDashboardStore();
 const { board } = storeToRefs(dashboardStore);
+
 const isLoading = ref(false);
+const showAddColumnDialog = ref(false);
+const showAddCardDialog = ref(false);
+const currentColumn = ref<Column | null>(null);
 
 const dragOptions = computed(() => {
-  return { animation: 200, group: "description", disabled: false };
+  return { animation: 200, group: "column" };
 });
 
-const addColumn = () => {
+const showAddCardComponent = (column: Column) => {
+  showAddCardDialog.value = true;
+  currentColumn.value = column;
+};
+
+const addColumn = async (title: string) => {
   if (!board.value) return;
+
+  if (!title.length) return;
+
+  showAddColumnDialog.value = false;
 
   isLoading.value = true;
 
-  setTimeout(() => {
-    isLoading.value = false;
-    board.value?.columns.push({
-      id: 1,
-      title: "TEst",
-      cards: [],
-    });
-  }, 2000);
+  await dashboardStore.addColumn(title);
+
+  isLoading.value = false;
 };
 
-const removeColumn = (columnId: number) => {
+const addCard = async (content: string) => {
   if (!board.value) return;
 
-  board.value.columns.splice(
-    board.value.columns.findIndex(({ id }) => columnId === id),
-    1,
-  );
+  if (!content.length) return;
+
+  if (!currentColumn.value) return;
+
+  showAddCardDialog.value = false;
+
+  await dashboardStore.addCard({
+    content,
+    position: 2,
+    columnId: currentColumn.value.id,
+  });
+};
+
+const removeColumn = async (columnId: number) => {
+  if (!board.value) return;
+
+  await dashboardStore.removeColumn(columnId);
+};
+
+const removeCard = async (newCard: Card) => {
+  if (!board.value) return;
+
+  const column = board.value.columns.find(({ cards }) => {
+    return cards.find(({ id }) => id === newCard.id);
+  });
+
+  if (!column) return;
+
+  await dashboardStore.removeCard({
+    columnId: column.id,
+    cardId: newCard.id,
+  });
 };
 
 onMounted(dashboardStore.getBoard);
@@ -94,6 +142,10 @@ onMounted(dashboardStore.getBoard);
   height: 100%;
   max-height: 760px;
   overflow-x: hidden;
+}
+
+.cursor-grable {
+  cursor: grab;
 }
 
 /* ===== Scrollbar CSS ===== */

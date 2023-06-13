@@ -39,6 +39,9 @@ import {
   VVirtualScroll,
   VFadeTransition,
   VList,
+  VDialog,
+  VCardTitle,
+  VCardActions,
 } from "vuetify/components";
 import * as directives from "vuetify/directives";
 
@@ -74,6 +77,9 @@ const vuetify = createVuetify({
     VVirtualScroll,
     VFadeTransition,
     VList,
+    VDialog,
+    VCardTitle,
+    VCardActions,
   },
   directives,
   theme: {

@@ -24,7 +24,10 @@ const useDashboardStore = defineStore("dashboard", {
         title,
       });
 
-      this.board?.columns.push(response);
+      this.board?.columns.push({
+        ...response,
+        cards: [],
+      });
     },
     async removeColumn(columnId: number) {
       this.board?.columns.splice(
