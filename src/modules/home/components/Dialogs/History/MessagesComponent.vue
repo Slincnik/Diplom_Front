@@ -88,12 +88,12 @@ import useDialogsStore from "@/stores/dialogs";
 import type { Conversation, Group, Message, MessageGroup } from "@/modules/home/types/index.types";
 
 const menuItemsOriginal = [
-  {
-    id: 1,
-    title: "Ответить",
-    icon: "mdi-reply",
-    type: "reply",
-  },
+  // {
+  //   id: 1,
+  //   title: "Ответить",
+  //   icon: "mdi-reply",
+  //   type: "reply",
+  // },
   {
     id: 2,
     title: "Изменить",
