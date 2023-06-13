@@ -11,18 +11,17 @@ const router = createRouter({
       path: "/",
       name: PAGES.HOME,
       component: () => import("@/modules/home/pages/HomePage.vue"),
-      children: [
-        {
-          path: "/messanger",
-          name: PAGES.MESSANGER,
-          component: () => import("@/modules/messanger/pages/MessangerPage.vue"),
-        },
-        {
-          path: "/dashboard",
-          name: PAGES.DASHBOARD,
-          component: () => import("@/modules/dashboard/pages/DashboardPage.vue"),
-        },
-      ],
+    },
+
+    {
+      path: "/messanger",
+      name: PAGES.MESSANGER,
+      component: () => import("@/modules/messanger/pages/MessangerPage.vue"),
+    },
+    {
+      path: "/dashboard",
+      name: PAGES.DASHBOARD,
+      component: () => import("@/modules/dashboard/pages/DashboardPage.vue"),
     },
 
     {
