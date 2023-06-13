@@ -15,3 +15,14 @@ export type Card = {
   content: string;
   position: number;
 };
+
+export type AddCard = {
+  content: string;
+  position: number;
+  columnId: number;
+};
+
+export type RemoveCard = {
+  columnId: number;
+  cardId: number;
+};
