@@ -70,10 +70,10 @@ import useUserStore from "@/stores/user";
 import MessagesComponent from "./MessagesComponent.vue";
 
 // Utils
-import { renderChar, renderTitle, isFavorite, giveRecipientId } from "@/modules/home/utils/conversationFunctions";
+import { renderChar, renderTitle, isFavorite, giveRecipientId } from "@/modules/messanger/utils/conversationFunctions";
 
 //Types
-import type { Conversation, Message, MessageGroup } from "@/modules/home/types/index.types";
+import type { Conversation, Message, MessageGroup } from "@/modules/messanger/types/index.types";
 
 const dialogsStore = useDialogsStore();
 const userStore = useUserStore();

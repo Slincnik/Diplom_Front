@@ -1,9 +1,10 @@
 <template>
   <v-app>
     <v-app-bar :elevation="2" rounded>
-      <v-app-bar-title class="cursor-pointer" @click="$router.push({ name: PAGES.HOME })"> Messenger </v-app-bar-title>
+      <v-app-bar-title class="cursor-pointer" @click="$router.push({ name: PAGES.HOME })"> Home </v-app-bar-title>
       <template v-if="user" v-slot:append>
         <v-btn prepend-icon="mdi-view-dashboard" class="mr-2" :to="{ name: PAGES.DASHBOARD }"> Dashboard </v-btn>
+        <v-btn prepend-icon="mdi-chat" class="mr-2" :to="{ name: PAGES.MESSANGER }"> Messanger </v-btn>
         <v-menu rounded min-width="200px">
           <template v-slot:activator="{ props }">
             <v-btn icon v-bind="props">

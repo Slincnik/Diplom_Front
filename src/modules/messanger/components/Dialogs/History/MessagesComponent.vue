@@ -85,7 +85,7 @@ import useUserStore from "@/stores/user";
 import useDialogsStore from "@/stores/dialogs";
 
 //Types
-import type { Conversation, Group, Message, MessageGroup } from "@/modules/home/types/index.types";
+import type { Conversation, Group, Message, MessageGroup } from "@/modules/messanger/types/index.types";
 
 const menuItemsOriginal = [
   // {

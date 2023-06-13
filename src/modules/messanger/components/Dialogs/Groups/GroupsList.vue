@@ -28,7 +28,7 @@ import useUserStore from "@/stores/user";
 import useDialogsStore from "@/stores/dialogs";
 
 //Types
-import type { Group } from "@/modules/home/types/index.types";
+import type { Group } from "@/modules/messanger/types/index.types";
 
 const userStore = useUserStore();
 const dialogsStore = useDialogsStore();

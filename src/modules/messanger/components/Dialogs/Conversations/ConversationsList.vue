@@ -43,8 +43,8 @@ import useUserStore from "@/stores/user";
 import useDialogsStore from "@/stores/dialogs";
 
 //Types
-import type { Conversation } from "@/modules/home/types/index.types";
-import { isFavorite, renderTitle, renderChar } from "@/modules/home/utils/conversationFunctions";
+import type { Conversation } from "@/modules/messanger/types/index.types";
+import { isFavorite, renderTitle, renderChar } from "@/modules/messanger/utils/conversationFunctions";
 
 const userStore = useUserStore();
 const dialogsStore = useDialogsStore();

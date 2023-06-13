@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
-import type { Conversation, Dialogs, Group, Message, MessageGroup } from "@/modules/home/types/index.types";
+import type { Conversation, Dialogs, Group, Message, MessageGroup } from "@/modules/messanger/types/index.types";
 import { api, type ApiResponse } from "@/plugins/axios";
-import { orderConversationsOrGroups } from "@/modules/home/utils/orderConversationsOrGroups";
+import { orderConversationsOrGroups } from "@/modules/messanger/utils/orderConversationsOrGroups";
 import queryString from "query-string";
 
 type Cursor = {
@@ -49,7 +49,7 @@ const useDialogsStore = defineStore("dialogs", {
 
     async fetchDialogs() {
       const response = await api.get<ApiResponse, Dialogs>("dialogs");
-      this.conversations = response.conversations;
+      this.conversations = orderConversationsOrGroups(response.conversations) as Conversation[];
       this.conversations.forEach(conversation => {
         if (conversation.lastMessage) {
           conversation.messages.push(conversation.lastMessage);
@@ -58,7 +58,7 @@ const useDialogsStore = defineStore("dialogs", {
         conversation.type = "conversation";
       });
 
-      this.groups = response.groups;
+      this.groups = orderConversationsOrGroups(response.groups) as Group[];
       this.groups.forEach(group => {
         if (group.lastMessage) {
           group.messages.push(group.lastMessage);
@@ -180,7 +180,6 @@ const useDialogsStore = defineStore("dialogs", {
       this.editMessageInDialog(newMessage, messageId);
 
       if (this.tab === "conversations") {
-        console.log(this.currentDialogId);
         await api.put(`dialogs/conversation/${this.currentDialogId}/messages/${messageId}`, {
           message: newMessage,
         });
@@ -201,7 +200,7 @@ const useDialogsStore = defineStore("dialogs", {
       conversation.lastMessage = message;
       conversation.messages.push(message);
 
-      this.conversations = orderConversationsOrGroups(this.conversations) as Conversation[];
+      this.conversations = orderConversationsOrGroups([...this.conversations]) as Conversation[];
     },
 
     addMessageToGroup(group_id: number, message: MessageGroup) {
@@ -212,7 +211,7 @@ const useDialogsStore = defineStore("dialogs", {
       group.lastMessage = message;
       group.messages.push(message);
 
-      this.groups = orderConversationsOrGroups(this.groups) as Group[];
+      this.groups = orderConversationsOrGroups([...this.groups]) as Group[];
     },
 
     addNewConversation(conversation: Conversation) {
