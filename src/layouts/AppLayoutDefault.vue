@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <v-app-bar :elevation="2" rounded>
-      <v-app-bar-title> Messenger </v-app-bar-title>
+      <v-app-bar-title class="cursor-pointer" @click="$router.push({ name: PAGES.HOME })"> Messenger </v-app-bar-title>
       <template v-if="user" v-slot:append>
         <v-btn prepend-icon="mdi-view-dashboard" class="mr-2" :to="{ name: PAGES.DASHBOARD }"> Dashboard </v-btn>
         <v-menu rounded min-width="200px">
@@ -88,3 +88,9 @@ const copyLogin = (login: string) => {
   });
 };
 </script>
+
+<style scoped>
+.cursor-pointer {
+  cursor: pointer;
+}
+</style>
