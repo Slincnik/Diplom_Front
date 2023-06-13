@@ -60,12 +60,12 @@ const renderLastMessage = (conversation: Conversation) => {
   if (createdConversation) {
     return `Личный чат создан`;
   } else {
-    const isAuthor = conversation.lastMessage.sender.id === user.value.id;
+    const isAuthor = conversation.lastMessage?.sender.id === user.value.id;
     if (isFavorite(conversation, user.value)) {
-      return conversation.lastMessage.body;
+      return conversation.lastMessage?.body;
     }
 
-    return `${isAuthor ? "Вы: " : ``} ${conversation.lastMessage.body}`;
+    return `${isAuthor ? "Вы: " : ``} ${conversation.lastMessage?.body}`;
   }
 };
 </script>

@@ -51,14 +51,18 @@ const useDialogsStore = defineStore("dialogs", {
       const response = await api.get<ApiResponse, Dialogs>("dialogs");
       this.conversations = response.conversations;
       this.conversations.forEach(conversation => {
-        conversation.messages.push(conversation.lastMessage);
+        if (conversation.lastMessage) {
+          conversation.messages.push(conversation.lastMessage);
+        }
         conversation.isLoaded = false;
         conversation.type = "conversation";
       });
 
       this.groups = response.groups;
       this.groups.forEach(group => {
-        group.messages.push(group.lastMessage);
+        if (group.lastMessage) {
+          group.messages.push(group.lastMessage);
+        }
         group.isLoaded = false;
         group.type = "group";
       });
@@ -228,7 +232,7 @@ const useDialogsStore = defineStore("dialogs", {
         1,
       );
 
-      if (message.id === dialog.lastMessage.id) {
+      if (dialog.lastMessage && message.id === dialog.lastMessage.id) {
         dialog.lastMessage = dialog.messages.at(-1) as Message | MessageGroup;
       }
 
