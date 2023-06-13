@@ -15,19 +15,43 @@
         max-width="300px"
         @contextmenu.prevent="(event: MouseEvent) => RMBClick(event, item)"
       >
-        <v-list-item-title class="text-wrap text-white text-right">
+        <v-list-item-title
+          class="text-wrap text-white"
+          :class="{
+            'text-right': item.sender.id === user?.id,
+            'text-left': item.sender.id !== user?.id,
+          }"
+        >
           {{ item.body }}
         </v-list-item-title>
         <v-list-item-subtitle>
-          <p
-            class="text-white"
+          <div
+            class="d-flex"
             :class="{
-              'text-right': item.sender.id === user?.id,
-              'text-left': item.sender.id !== user?.id,
+              'flex-row-reverse justify-end': item.sender.id !== user?.id,
+              'flor-row justify-end': item.sender.id === user?.id,
             }"
           >
-            {{ formatDate(item.created_at) }}
-          </p>
+            <p
+              v-if="isUpdating(item)"
+              class="text-white"
+              :class="{
+                'text-right mr-1': item.sender.id === user?.id,
+                'text-left ml-1': item.sender.id !== user?.id,
+              }"
+            >
+              Изменено
+            </p>
+            <p
+              class="text-white"
+              :class="{
+                'text-right': item.sender.id === user?.id,
+                'text-left': item.sender.id !== user?.id,
+              }"
+            >
+              {{ formatDate(item.created_at) }}
+            </p>
+          </div>
         </v-list-item-subtitle>
       </v-list-item>
     </v-fade-transition>
@@ -53,7 +77,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick, watch, reactive } from "vue";
+import { ref, onMounted, nextTick, watch, reactive, computed } from "vue";
 import { POSITION, useToast } from "vue-toastification";
 
 // Stores
@@ -116,6 +140,9 @@ const menuItems = reactive([...menuItemsOriginal]);
 const currentItem = ref<Message | MessageGroup | null>(null);
 
 const user = userStore.getUser;
+const isUpdating = computed(() => {
+  return (item: Message | MessageGroup) => new Date(item.created_at).getTime() !== new Date(item.updated_at).getTime();
+});
 
 watch(showMenu, value => {
   if (!value) {
@@ -180,7 +207,6 @@ const formatDate = (value: string) => {
   return Intl.DateTimeFormat(navigator.language, {
     hour: "numeric",
     minute: "numeric",
-    second: "numeric",
   }).format(new Date(value));
 };
 
