@@ -168,6 +168,9 @@ const sendMessage = () => {
 
     if (body.value === messageItem.value.body) {
       isEditing.value = false;
+      body.value = "";
+      isAddLoading.value = false;
+      return;
     }
 
     dialogsStore.editMessage(body.value, messageItem.value.id, recipientId.value).then(() => {
