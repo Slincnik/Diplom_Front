@@ -86,6 +86,14 @@ onMounted(() => {
     if (data.type === "READ_MESSAGES") {
       dialogsStore.readMessagesInConversation(data.conversation_id, data.user_id, data.timestamp);
     }
+
+    if (data.type === "DELETE_MESSAGES") {
+      dialogsStore.deleteMessageInDialog(data.messages[0]);
+    }
+
+    if (data.type === "DELETE_MESSAGE_GROUP") {
+      dialogsStore.deleteMessageInDialog(data.messages[0]);
+    }
   });
 
   window.addEventListener("keyup", listener);
