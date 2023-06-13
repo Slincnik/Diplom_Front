@@ -31,7 +31,13 @@
     </v-toolbar>
   </v-card>
   <div v-if="currentDialog" class="scroll-container mb-2 mt-2" ref="scrollRef">
-    <MessagesComponent :key="currentDialog?.id" :dialog="currentDialog" :scrollRef="scrollRef" />
+    <MessagesComponent
+      :key="currentDialog?.id"
+      :dialog="currentDialog"
+      :scrollRef="scrollRef"
+      v-model="isEditing"
+      v-model:editMessage="messageItem"
+    />
   </div>
   <v-responsive class="mx-auto" max-width="790">
     <v-text-field
@@ -40,7 +46,7 @@
       hide-details
       v-model="body"
       variant="solo"
-      append-inner-icon="mdi-send"
+      :append-inner-icon="!isEditing ? 'mdi-send' : 'mdi-check'"
       type="text"
       density="comfortable"
       label="Написать сообщение..."
@@ -67,7 +73,7 @@ import MessagesComponent from "./MessagesComponent.vue";
 import { renderChar, renderTitle, isFavorite, giveRecipientId } from "@/modules/home/utils/conversationFunctions";
 
 //Types
-import type { Conversation } from "@/modules/home/types/index.types";
+import type { Conversation, Message, MessageGroup } from "@/modules/home/types/index.types";
 
 const dialogsStore = useDialogsStore();
 const userStore = useUserStore();
@@ -77,6 +83,8 @@ const body = ref("");
 const scrollRef = ref<HTMLElement | null>(null);
 const isFirstLoading = ref(false);
 const isAddLoading = ref(false);
+const isEditing = ref(false);
+const messageItem = ref<Message | MessageGroup | null>(null);
 
 //Computed
 const user = userStore.getUser;
@@ -119,6 +127,13 @@ watch(
   },
 );
 
+watch(
+  () => messageItem.value,
+  value => {
+    if (value) body.value = value.body;
+  },
+);
+
 const { isLoading: isLoadingMore } = useInfiniteScroll(
   scrollRef,
   () => {
@@ -145,7 +160,23 @@ const loadingFirstMessages = async () => {
 
 const sendMessage = () => {
   if (!body.value) return;
+
   isAddLoading.value = true;
+
+  if (isEditing.value) {
+    if (!messageItem.value) return;
+
+    if (body.value === messageItem.value.body) {
+      isEditing.value = false;
+    }
+
+    dialogsStore.editMessage(body.value, messageItem.value.id, recipientId.value).then(() => {
+      isAddLoading.value = false;
+      isEditing.value = false;
+    });
+    body.value = "";
+    return;
+  }
 
   dialogsStore.storeMessage(body.value, recipientId.value).then(() => {
     isAddLoading.value = false;

@@ -71,28 +71,37 @@ onMounted(() => {
   }
 
   centra.subs.on("publication", ({ data }: { data: MessagesFromCentrifugo }) => {
-    if (data.type === "NEW_MESSAGE") {
-      dialogsStore.addMessageToConversation(data.conversation_id, data.message);
-    }
+    switch (data.type) {
+      case "NEW_MESSAGE":
+        dialogsStore.addMessageToConversation(data.conversation_id, data.message);
+        break;
 
-    if (data.type === "NEW_MESSAGE_GROUP") {
-      dialogsStore.addMessageToGroup(data.group_id, data.message);
-    }
+      case "NEW_MESSAGE_GROUP":
+        dialogsStore.addMessageToGroup(data.group_id, data.message);
+        break;
 
-    if (data.type === "ADD_CONVERSATION") {
-      dialogsStore.addNewConversation(data.conversation);
-    }
+      case "ADD_CONVERSATION":
+        dialogsStore.addNewConversation(data.conversation);
+        break;
 
-    if (data.type === "READ_MESSAGES") {
-      dialogsStore.readMessagesInConversation(data.conversation_id, data.user_id, data.timestamp);
-    }
+      case "READ_MESSAGES":
+        dialogsStore.readMessagesInConversation(data.conversation_id, data.user_id, data.timestamp);
+        break;
 
-    if (data.type === "DELETE_MESSAGES") {
-      dialogsStore.deleteMessageInDialog(data.messages[0]);
-    }
+      case "DELETE_MESSAGES":
+        dialogsStore.deleteMessageInDialog(data.messages[0]);
+        break;
 
-    if (data.type === "DELETE_MESSAGE_GROUP") {
-      dialogsStore.deleteMessageInDialog(data.messages[0]);
+      case "DELETE_MESSAGE_GROUP":
+        dialogsStore.deleteMessageInDialog(data.messages[0]);
+        break;
+
+      case "EDIT_MESSAGE":
+        dialogsStore.editMessageInDialog(data.message.body, data.message.id);
+        break;
+
+      default:
+        break;
     }
   });
 

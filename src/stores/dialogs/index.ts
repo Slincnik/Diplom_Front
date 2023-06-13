@@ -176,6 +176,22 @@ const useDialogsStore = defineStore("dialogs", {
       }
     },
 
+    async editMessage(newMessage: string, messageId: number, userId?: number) {
+      this.editMessageInDialog(newMessage, messageId);
+
+      if (this.tab === "conversations") {
+        await api.put(`dialogs/conversation/${userId}/messages/${messageId}`, {
+          message: newMessage,
+        });
+      }
+
+      if (this.tab === "groups") {
+        await api.put(`dialogs/groups/${this.currentDialogId}/messages/${messageId}`, {
+          message: newMessage,
+        });
+      }
+    },
+
     addMessageToConversation(conversation_id: number, message: Message) {
       const conversation = this.conversations.find(({ id }) => id === conversation_id);
 
@@ -238,6 +254,18 @@ const useDialogsStore = defineStore("dialogs", {
 
       this.conversations = orderConversationsOrGroups(this.conversations) as Conversation[];
       this.groups = orderConversationsOrGroups(this.groups) as Group[];
+    },
+
+    editMessageInDialog(newMessage: string, newMessageId: number) {
+      const dialog = this.getConversationOrGroup;
+
+      if (!dialog) return;
+
+      const message = dialog.messages.find(({ id }) => id === newMessageId);
+
+      if (!message) return;
+
+      message.body = newMessage;
     },
   },
 });

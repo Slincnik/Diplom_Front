@@ -93,6 +93,13 @@ const menuItemsOriginal = [
 const props = defineProps<{
   scrollRef: HTMLElement | null;
   dialog: Conversation | Group;
+  modelValue: boolean;
+  editMessage: Message | MessageGroup | null;
+}>();
+
+const emit = defineEmits<{
+  (e: "update:modelValue", value: boolean): void;
+  (e: "update:editMessage", value: Message | MessageGroup): void;
 }>();
 
 const userStore = useUserStore();
@@ -131,6 +138,11 @@ const menuClicked = async (event: "delete" | "edit" | "copy" | "reply") => {
 
   if (event === "delete") {
     await dialogsStore.deleteMessage(currentItem.value.id);
+  }
+
+  if (event === "edit") {
+    emit("update:modelValue", true);
+    emit("update:editMessage", currentItem.value);
   }
 
   if (event === "copy") {

@@ -77,7 +77,7 @@ type ReadMessagesFromCentrifugo = {
 type EditMessageFromCentrifugo = {
   type: "EDIT_MESSAGE";
   conversation_id: number;
-  message: Message;
+  message: Message | MessageGroup;
 };
 
 type DeleteMessagesFromCentrifugo = {
