@@ -7,7 +7,10 @@ import AppLayout from "./layouts/AppLayout.vue";
 
 const isError = ref(false);
 
-onErrorCaptured(() => (isError.value = true));
+onErrorCaptured((error, _, info) => {
+  if (info === "component event handler") return;
+  isError.value = true;
+});
 </script>
 
 <template>
