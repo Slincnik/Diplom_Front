@@ -170,7 +170,21 @@ onMounted(() => {
         break;
 
       case "EDIT_MESSAGE":
-        dialogsStore.editMessageInDialog(data.message.body, data.message.id);
+        dialogsStore.editMessageInDialog({
+          type: "conversations",
+          newMessage: data.message.body,
+          dialogId: data.conversation_id,
+          messageId: data.message.id,
+        });
+        break;
+
+      case "EDIT_MESSAGE_GROUP":
+        dialogsStore.editMessageInDialog({
+          type: "groups",
+          newMessage: data.message.body,
+          dialogId: data.group_id,
+          messageId: data.message.id,
+        });
         break;
 
       default:

@@ -10,6 +10,13 @@ type Cursor = {
   type: "conversations" | "groups";
   cursor: string | null;
 };
+
+type editMessageSettings = {
+  type: "conversations" | "groups";
+  messageId: number;
+  dialogId: number;
+  newMessage: string;
+};
 interface State {
   currentDialogId: null | number;
   conversations: Conversation[];
@@ -35,6 +42,12 @@ const useDialogsStore = defineStore("dialogs", {
         return state.conversations.find(({ id }) => id === state.currentDialogId) as Conversation;
       else if (state.tab === "groups") return state.groups.find(({ id }) => id === state.currentDialogId) as Group;
       else return null;
+    },
+    getOptionalConversation: state => {
+      return (conversationId: number) => state.conversations.find(({ id }) => id === conversationId);
+    },
+    getOptionalGroup: state => {
+      return (groupId: number) => state.groups.find(({ id }) => id === groupId);
     },
   },
   actions: {
@@ -196,7 +209,7 @@ const useDialogsStore = defineStore("dialogs", {
     },
 
     async editMessage(newMessage: string, messageId: number) {
-      this.editMessageInDialog(newMessage, messageId);
+      this.editMessageInDialog({ type: this.tab, messageId, dialogId: this.currentDialogId!, newMessage });
 
       if (this.tab === "conversations") {
         await api.put(`dialogs/conversation/${this.currentDialogId}/messages/${messageId}`, {
@@ -280,17 +293,30 @@ const useDialogsStore = defineStore("dialogs", {
       this.groups = orderConversationsOrGroups(this.groups) as Group[];
     },
 
-    editMessageInDialog(newMessage: string, newMessageId: number) {
-      const dialog = this.getConversationOrGroup;
+    editMessageInDialog(settings: editMessageSettings) {
+      if (settings.type === "conversations") {
+        const conversation = this.conversations.find(({ id }) => id === settings.dialogId);
 
-      if (!dialog) return;
+        if (!conversation) return;
 
-      const message = dialog.messages.find(({ id }) => id === newMessageId);
+        const message = conversation.messages.find(({ id }) => id === settings.messageId);
 
-      if (!message) return;
+        if (!message) return;
 
-      message.body = newMessage;
-      message.updated_at = new Date().toUTCString();
+        message.body = settings.newMessage;
+        message.updated_at = new Date().toUTCString();
+      } else if (settings.type === "groups") {
+        const group = this.groups.find(({ id }) => id === settings.dialogId);
+
+        if (!group) return;
+
+        const message = group.messages.find(({ id }) => id === settings.messageId);
+
+        if (!message) return;
+
+        message.body = settings.newMessage;
+        message.updated_at = new Date().toUTCString();
+      }
     },
   },
 });
