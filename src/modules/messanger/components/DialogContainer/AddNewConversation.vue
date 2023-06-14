@@ -13,9 +13,7 @@
         v-model="user"
         :loading="isLoading"
         :disabled="isStoreLoading"
-      >
-        <template #prepend></template>
-      </v-select>
+      />
 
       <v-text-field
         v-if="user"
@@ -81,6 +79,8 @@ const closeModal = () => {
 
 const sendMessage = async () => {
   if (!user.value) return;
+
+  if (!message.value) return;
 
   isStoreLoading.value = true;
 
