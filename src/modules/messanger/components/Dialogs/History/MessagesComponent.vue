@@ -152,6 +152,16 @@ watch(showMenu, value => {
   }
 });
 
+watch(props.dialog.messages, () => {
+  let a = props.scrollRef!.scrollTop;
+  let b = props.scrollRef!.scrollHeight - props.scrollRef!.clientHeight;
+  let c = a / b;
+
+  if (c === 1) {
+    scrollToTop("smooth");
+  }
+});
+
 watch(
   () => props.dialog.isLoaded,
   isLoaded => {
