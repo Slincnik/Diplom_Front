@@ -1,6 +1,9 @@
 <template>
   <div class="overflow-y-auto" style="height: 820px">
-    <template v-for="group in groups" :key="group.id">
+    <div v-if="!groups.length" style="height: 820px" class="d-flex justify-center align-center">
+      <span class="text-white text-h6"> Создайте группу и начните общение </span>
+    </div>
+    <template v-else v-for="group in groups" :key="group.id">
       <v-list-item
         @click.prevent="dialogsStore.setCurrentDialog(group.id)"
         :class="{
