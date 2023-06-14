@@ -17,7 +17,7 @@
       />
       <v-card-actions>
         <v-btn color="blue-darken-1" variant="text" @click="emit('closeDialog')"> Закрыть </v-btn>
-        <v-btn color="blue-darken-1" variant="text" @click="emit('clickToCreate', cardContent)"> Создать </v-btn>
+        <v-btn color="blue-darken-1" variant="text" @click="clickToCreate"> Создать </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -44,4 +44,10 @@ const emit = defineEmits<{
   (e: "closeDialog", value: void): void;
   (e: "update:modelValue", value: boolean): void;
 }>();
+
+const clickToCreate = () => {
+  emit("clickToCreate", cardContent.value);
+
+  cardContent.value = "";
+};
 </script>
