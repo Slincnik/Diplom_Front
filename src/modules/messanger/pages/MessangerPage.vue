@@ -36,7 +36,7 @@ import type { MessagesFromCentrifugo } from "../types/index.types";
 // Components
 import Sidebar from "../components/Dialogs/SidebarComponent.vue";
 import HistoryComponent from "../components/Dialogs/History/HistoryComponent.vue";
-import { renderTitle } from "../utils/conversationFunctions";
+import { isFavorite, renderTitle } from "../utils/conversationFunctions";
 
 const dialogsStore = useDialogsStore();
 const userStore = useUserStore();
@@ -101,6 +101,10 @@ onMounted(() => {
 
           if (!conversation) return;
 
+          const isFavoriteValue = isFavorite(conversation, user.value);
+
+          if (isFavoriteValue) return;
+
           play();
           const title = renderTitle(conversation, user.value);
           toast.info(`${title}: ${truncateText(data.message.body, 7)}`, {
@@ -132,6 +136,8 @@ onMounted(() => {
 
       case "ADD_CONVERSATION":
         dialogsStore.addNewConversation(data.conversation);
+
+        if (isFavorite(data.conversation, user.value)) return;
 
         toast.info(
           `${renderTitle(data.conversation, user.value)}: ${truncateText(
