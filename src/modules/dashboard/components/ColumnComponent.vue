@@ -128,7 +128,7 @@ const onReorderEnds = () => {
 }
 
 .list-group {
-  min-height: 20px;
+  min-height: 760px;
   height: 100%;
   max-height: 760px;
   overflow-x: hidden;
