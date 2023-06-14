@@ -84,9 +84,6 @@ const vuetify = createVuetify({
     VSelect,
   },
   directives,
-  theme: {
-    defaultTheme: "dark",
-  },
 });
 
 import App from "./App.vue";

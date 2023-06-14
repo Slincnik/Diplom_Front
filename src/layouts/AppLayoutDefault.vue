@@ -1,9 +1,12 @@
 <template>
   <v-app>
     <v-app-bar :elevation="2" rounded>
-      <v-app-bar-title class="cursor-pointer" @click="$router.push({ name: PAGES.HOME })"> Home </v-app-bar-title>
-      <template v-if="user" v-slot:append>
-        <v-menu rounded min-width="200px">
+      <v-app-bar-title>
+        <v-btn variant="text" size="large" @click="$router.push({ name: PAGES.HOME })">Home</v-btn>
+      </v-app-bar-title>
+      <template v-slot:append>
+        <v-btn class="mr-2" :icon="darkMode ? 'mdi-weather-night' : 'mdi-weather-sunny'" @click="toggleTheme" />
+        <v-menu v-if="user" rounded min-width="200px">
           <template v-slot:activator="{ props }">
             <v-btn icon v-bind="props">
               <v-avatar color="brown" size="large">
@@ -38,16 +41,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import { storeToRefs } from "pinia";
 import { POSITION, useToast } from "vue-toastification";
 import useUserStore from "@/stores/user";
 import { PAGES } from "@/router/router.types";
+import { useTheme } from "vuetify/lib/framework.mjs";
+import { useStorage } from "@vueuse/core";
 
 const toast = useToast();
+const theme = useTheme();
 
 const userStore = useUserStore();
 const { user } = storeToRefs(userStore);
+
+const darkMode = ref(false);
+const currentTheme = useStorage("theme", "dark");
 
 const getInitials = (fullname: string) => {
   return fullname
@@ -86,6 +95,17 @@ const copyLogin = (login: string) => {
     position: POSITION.BOTTOM_RIGHT,
   });
 };
+
+const toggleTheme = () => {
+  darkMode.value = !darkMode.value;
+  theme.global.name.value = darkMode.value ? "dark" : "light";
+  currentTheme.value = theme.global.name.value;
+};
+
+onMounted(() => {
+  darkMode.value = currentTheme.value === "dark";
+  theme.global.name.value = darkMode.value ? "dark" : "light";
+});
 </script>
 
 <style scoped>
