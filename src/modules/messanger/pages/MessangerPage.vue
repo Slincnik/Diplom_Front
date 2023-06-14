@@ -84,6 +84,10 @@ onMounted(() => {
         dialogsStore.addNewConversation(data.conversation);
         break;
 
+      case "ADD_GROUP":
+        dialogsStore.addNewGroup(data.group);
+        break;
+
       case "READ_MESSAGES":
         dialogsStore.readMessagesInConversation(data.conversation_id, data.user_id, data.timestamp);
         break;

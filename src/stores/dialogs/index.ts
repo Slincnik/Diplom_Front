@@ -71,6 +71,13 @@ const useDialogsStore = defineStore("dialogs", {
       return response;
     },
 
+    async createGroup(groupName: string, usersId: number[] = []) {
+      await api.post("dialogs/groups", {
+        name: groupName,
+        users: usersId,
+      });
+    },
+
     async loadingMessages(type: "conversation" | "group", newCursor?: Cursor) {
       if (type === "conversation") {
         const { messages, cursor } = await api.get<
@@ -234,6 +241,8 @@ const useDialogsStore = defineStore("dialogs", {
     },
 
     addNewGroup(group: Group) {
+      group.isLoaded = true;
+      group.type = "group";
       this.groups.unshift(group);
     },
 

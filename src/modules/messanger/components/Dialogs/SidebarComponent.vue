@@ -35,6 +35,7 @@
       </v-list>
     </v-menu>
     <AddNewConversation v-model="showAddConversation" @close-modal="showAddConversation = false" />
+    <AddNewGroup v-model="showAddGroup" @close-modal="showAddGroup = false" />
   </div>
 </template>
 
@@ -45,6 +46,8 @@ import useDialogsStore from "@/stores/dialogs";
 import ConversationsList from "./Conversations/ConversationsList.vue";
 import GroupsList from "./Groups/GroupsList.vue";
 import AddNewConversation from "../DialogContainer/AddNewConversation.vue";
+import AddNewGroup from "../DialogContainer/AddNewGroup.vue";
+
 const items = [
   {
     title: "Новое сообщение",
@@ -65,10 +68,14 @@ const router = useRouter();
 const isOver = ref(false);
 const showMenu = ref(false);
 const showAddConversation = ref(false);
+const showAddGroup = ref(false);
 
 const menuClicked = (type: "conversation" | "group") => {
   if (type === "conversation") {
     showAddConversation.value = true;
+  }
+  if (type === "group") {
+    showAddGroup.value = true;
   }
 };
 
