@@ -60,6 +60,11 @@ const useDashboardStore = defineStore("dashboard", {
 
       await api.delete(`board/column/${settings.columnId}/card/${settings.cardId}`);
     },
+    async reorderCards(cards: unknown[]) {
+      api.put("board/cards/reorder", {
+        columns: cards,
+      });
+    },
   },
 });
 
