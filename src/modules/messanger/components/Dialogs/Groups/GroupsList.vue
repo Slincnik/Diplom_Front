@@ -46,7 +46,7 @@ const renderLastMessage = (group: Group) => {
   } else {
     const isAuthor = group.lastMessage?.sender.id === user.value.id;
 
-    return `${isAuthor ? "Вы: " : `${group.lastMessage?.sender.fullname}`} ${group.lastMessage?.body}`;
+    return `${isAuthor ? "Вы: " : `${group.lastMessage?.sender.fullname}: `} ${group.lastMessage?.body}`;
   }
 };
 </script>
