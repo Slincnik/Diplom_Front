@@ -1,4 +1,4 @@
-import { orderBy } from "lodash";
+import orderBy from "lodash/orderBy";
 import type { Conversation, Group } from "../types/index.types";
 
 export const orderConversationsOrGroups = (array: Conversation[] | Group[]) => {

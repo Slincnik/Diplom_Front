@@ -33,7 +33,7 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
-import { cloneDeep } from "lodash";
+import cloneDeep from "lodash/cloneDeep";
 import useDashboardStore from "@/stores/dashboard";
 
 import type { Column, Card, Board } from "@/stores/dashboard/types";
