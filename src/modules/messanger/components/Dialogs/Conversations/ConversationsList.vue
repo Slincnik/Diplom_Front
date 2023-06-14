@@ -1,7 +1,7 @@
 <template>
   <div class="overflow-y-auto" style="height: 820px">
     <div v-if="!conversations.length" style="height: 820px" class="d-flex justify-center align-center">
-      <span class="text-white text-h6"> Самое время написать кому-нибудь </span>
+      <span class="text-h6"> Самое время написать кому-нибудь </span>
     </div>
     <template v-else v-for="conversation in conversations" :key="conversation.id">
       <v-list-item
