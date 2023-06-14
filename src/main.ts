@@ -42,6 +42,7 @@ import {
   VDialog,
   VCardTitle,
   VCardActions,
+  VSelect,
 } from "vuetify/components";
 import * as directives from "vuetify/directives";
 
@@ -80,6 +81,7 @@ const vuetify = createVuetify({
     VDialog,
     VCardTitle,
     VCardActions,
+    VSelect,
   },
   directives,
   theme: {

@@ -1,5 +1,5 @@
 <template>
-  <v-row no-gutters class="bg-default fill-height border rounded-lg">
+  <v-row no-gutters class="bg-default fill-height border rounded-lg overflow-y-auto">
     <v-col sm="2">
       <v-progress-circular
         v-if="isLoading"

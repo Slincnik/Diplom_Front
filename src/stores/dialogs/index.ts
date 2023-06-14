@@ -3,6 +3,7 @@ import type { Conversation, Dialogs, Group, Message, MessageGroup } from "@/modu
 import { api, type ApiResponse } from "@/plugins/axios";
 import { orderConversationsOrGroups } from "@/modules/messanger/utils/orderConversationsOrGroups";
 import queryString from "query-string";
+import type { IUser } from "../user/types";
 
 type Cursor = {
   id: number;
@@ -142,6 +143,17 @@ const useDialogsStore = defineStore("dialogs", {
       }
     },
 
+    async getUsers() {
+      const { users } = await api.get<
+        ApiResponse,
+        {
+          users: IUser[];
+        }
+      >("dialogs/users");
+
+      return users;
+    },
+
     async storeMessage(body: string, userId?: number) {
       if (this.tab === "conversations") {
         await api.post<ApiResponse>(`dialogs/conversation/${userId}`, {
@@ -215,6 +227,9 @@ const useDialogsStore = defineStore("dialogs", {
     },
 
     addNewConversation(conversation: Conversation) {
+      conversation.isLoaded = true;
+      conversation.messages.push(conversation.lastMessage!);
+      conversation.type = "conversation";
       this.conversations.unshift(conversation);
     },
 
