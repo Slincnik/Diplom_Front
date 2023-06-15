@@ -19,7 +19,7 @@ export type registerParams = {
   login: string;
   email: string;
   name: string;
-  lastname?: string;
+  lastname: string | null;
   password: string;
   password_confirmation: string;
 };
