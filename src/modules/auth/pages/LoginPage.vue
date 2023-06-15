@@ -28,7 +28,7 @@
       <div class="mt-2">
         <p class="text-body-2 text-center">
           Не имеете аккаунта?
-          <router-link :to="{ name: 'auth.register' }" class="bg-transparent">Зарегистрироваться</router-link>
+          <router-link :to="{ name: PAGES.REGISTRATION }" class="bg-transparent">Зарегистрироваться</router-link>
         </p>
       </div>
     </v-sheet>
@@ -40,6 +40,7 @@ import { useRouter } from "vue-router";
 import useUserStore from "@/stores/user";
 import type { Form } from "../types/form.type";
 import { rules } from "../utils/rules";
+import { PAGES } from "@/router/router.types";
 
 const data = shallowReactive({
   login: "",
