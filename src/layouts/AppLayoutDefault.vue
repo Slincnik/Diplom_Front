@@ -107,9 +107,3 @@ onMounted(() => {
   theme.global.name.value = darkMode.value ? "dark" : "light";
 });
 </script>
-
-<style scoped>
-.cursor-pointer {
-  cursor: pointer;
-}
-</style>
