@@ -1,10 +1,12 @@
 <template>
-  <div class="overflow-y-auto" style="height: 820px">
-    <div v-if="!conversations.length" style="height: 820px" class="d-flex justify-center align-center">
-      <span class="text-h6"> Самое время написать кому-нибудь </span>
+  <div class="overflow-y-auto list">
+    <div v-if="!conversations.length" class="d-flex fill-height justify-center align-center">
+      <span class="text-h6 text-center"> Самое время написать кому-нибудь </span>
     </div>
-    <template v-else v-for="conversation in conversations" :key="conversation.id">
+    <template v-else>
       <v-list-item
+        v-for="conversation in conversations"
+        :key="conversation.id"
         @click.stop="dialogsStore.setCurrentDialog(conversation.id)"
         :class="{
           'v-list-item--active': conversation.id == currentDialogId,
@@ -36,6 +38,7 @@
           <v-badge dot color="blue" />
         </template> -->
       </v-list-item>
+      <v-divider />
     </template>
   </div>
 </template>
@@ -72,3 +75,10 @@ const renderLastMessage = (conversation: Conversation) => {
   }
 };
 </script>
+
+<style scoped>
+.list {
+  width: 100%;
+  position: absolute;
+}
+</style>

@@ -1,5 +1,5 @@
 <template>
-  <div class="message-container d-flex flex-column justify-end w-50">
+  <div class="message-container d-flex flex-column justify-end">
     <v-fade-transition group>
       <v-list-item
         class="mb-4 rounded-lg"
@@ -268,6 +268,11 @@ onMounted(scrollToTop);
 <style scoped>
 .message-container {
   min-height: 100%;
+  width: 100%;
+  background-color: transparent;
+  max-width: 66rem;
+  margin: 0 auto;
+  position: absolute;
 }
 .onHover:hover {
   background-color: rgb(45, 45, 45);

@@ -1,17 +1,19 @@
 <template>
-  <div @mouseenter="isOver = true" @mouseleave="isOver = false">
-    <v-card>
-      <v-tabs v-model="dialogStore.tab" fixed-tabs>
-        <v-tab value="conversations"> Диалоги </v-tab>
-        <v-tab value="groups"> Группы </v-tab>
-      </v-tabs>
-    </v-card>
+  <div class="d-flex flex-column fill-height leftMenu" @mouseenter="isOver = true" @mouseleave="isOver = false">
+    <div>
+      <v-card>
+        <v-tabs v-model="dialogStore.tab" fixed-tabs>
+          <v-tab value="conversations"> Диалоги </v-tab>
+          <v-tab value="groups"> Группы </v-tab>
+        </v-tabs>
+      </v-card>
+    </div>
     <v-divider class="border-opacity-25" />
-    <v-sheet :key="dialogStore.tab" class="fill-height rounded-lg" style="max-height: 823px">
+    <v-sheet :key="dialogStore.tab" class="overflow-y-auto fill-height sheet">
       <ConversationsList v-if="dialogStore.tab === 'conversations'" />
       <GroupsList v-else />
     </v-sheet>
-    <v-menu attach v-model="showMenu" location="top">
+    <v-menu style="position: fixed" persistent attach v-model="showMenu" location="top">
       <template v-slot:activator="{ props }">
         <v-btn
           class="newchatbutton"
@@ -23,7 +25,7 @@
           v-bind="props"
         ></v-btn>
       </template>
-      <v-list>
+      <v-list style="position: relative">
         <v-list-item v-for="(item, index) in items" :key="index" :value="index">
           <div class="d-flex" @click.prevent="menuClicked(item.type as 'group' | 'conversation')">
             <v-icon :icon="item.icon" />
@@ -106,6 +108,13 @@ watch(
 </script>
 
 <style scoped>
+.sheet {
+  position: relative;
+}
+.leftMenu {
+  background-color: rgb(var(--v-theme-surface));
+  position: relative;
+}
 /* ===== Scrollbar CSS ===== */
 /* Firefox */
 * {
@@ -134,13 +143,12 @@ watch(
 
 .newchatbutton {
   position: absolute;
-  bottom: 2rem;
-  right: 100rem;
-  transform: translateX(-20rem);
+  bottom: 1rem;
+  right: 2rem;
+  transform: translateY(5rem);
 }
 
 .revealed {
-  transform: translateX(0);
-  display: block;
+  transform: translateY(0);
 }
 </style>

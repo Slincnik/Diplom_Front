@@ -1,5 +1,5 @@
 <template>
-  <div class="d-flex flex-column justify-center mx-auto w-20">
+  <div class="fill-height d-flex flex-column align-center justify-center mx-auto w-20">
     <p class="text-h5">Здравствуйте, куда пойдем?</p>
     <div class="d-flex ma-2 justify-center align-center">
       <v-card class="mr-2" @click.prevent="$router.push({ name: PAGES.MESSANGER })">

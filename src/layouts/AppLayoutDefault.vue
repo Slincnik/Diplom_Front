@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-app-bar :elevation="2" rounded>
+    <v-app-bar density="comfortable" :elevation="2" rounded>
       <v-app-bar-title>
         <v-btn variant="text" size="large" @click="$router.push({ name: PAGES.HOME })">Home</v-btn>
       </v-app-bar-title>
@@ -33,9 +33,7 @@
       </template>
     </v-app-bar>
     <v-main>
-      <v-container class="fill-height" fluid justify="center" align="center">
-        <slot />
-      </v-container>
+      <slot />
     </v-main>
   </v-app>
 </template>

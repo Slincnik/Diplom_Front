@@ -1,6 +1,6 @@
 <template>
-  <v-row no-gutters class="bg-default fill-height elevation-5 border rounded-lg overflow-y-auto">
-    <v-col sm="2">
+  <v-row no-gutters class="fill-height">
+    <v-col xs="5" sm="5" md="3" lg="3" xl="3" xxl="3" class="fill-height" style="max-width: 360px">
       <v-progress-circular
         v-if="isLoading"
         size="large"
@@ -10,7 +10,7 @@
       <Sidebar v-else />
     </v-col>
     <v-divider vertical />
-    <v-col sm="10">
+    <v-col class="d-none d-sm-block">
       <HistoryComponent v-if="currentDialog" />
       <div v-else class="fill-height d-flex flex-column justify-center align-center">Выберите чат</div>
     </v-col>
@@ -35,13 +35,14 @@ import type { MessagesFromCentrifugo } from "../types/index.types";
 import Sidebar from "../components/Dialogs/SidebarComponent.vue";
 import HistoryComponent from "../components/Dialogs/History/HistoryComponent.vue";
 import { isFavorite, renderTitle } from "../utils/conversationFunctions";
+import newMessageSound from "@/assets/sounds/newMessage.mp3";
 
 const dialogsStore = useDialogsStore();
 const userStore = useUserStore();
 const router = useRouter();
 const route = useRoute();
 const toast = useToast();
-const { play } = useSound("@/assets/sounds/newMessage.mp3", {
+const { play } = useSound(newMessageSound, {
   volume: 0.3,
 });
 

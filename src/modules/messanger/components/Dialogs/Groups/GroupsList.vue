@@ -1,6 +1,6 @@
 <template>
-  <div class="overflow-y-auto" style="height: 820px">
-    <div v-if="!groups.length" style="height: 820px" class="d-flex justify-center align-center">
+  <div class="overflow-y-auto list">
+    <div v-if="!groups.length" class="d-flex fill-height justify-center align-center">
       <span class="text-h6"> Создайте группу и начните общение </span>
     </div>
     <template v-else v-for="group in groups" :key="group.id">
@@ -53,3 +53,10 @@ const renderLastMessage = (group: Group) => {
   }
 };
 </script>
+
+<style scoped>
+.list {
+  width: 100%;
+  position: absolute;
+}
+</style>

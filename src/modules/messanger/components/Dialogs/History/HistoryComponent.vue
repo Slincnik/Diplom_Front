@@ -1,61 +1,69 @@
 <template>
-  <v-card>
-    <v-toolbar dark prominent density="compact" class="bg-transparent">
-      <v-toolbar-title class="d-flex">
-        {{ currentDialog?.type === "conversation" ? renderTitle(currentDialog!, user) : currentDialog?.name }}
-      </v-toolbar-title>
-      <template v-slot:prepend>
-        <v-avatar
-          size="40"
-          elevation="10"
-          :class="{
+  <div class="d-flex flex-column fill-height">
+    <v-card>
+      <v-toolbar dark prominent density="default" class="bg-transparent">
+        <v-toolbar-title class="d-flex">
+          {{ currentDialog?.type === "conversation" ? renderTitle(currentDialog!, user) : currentDialog?.name }}
+        </v-toolbar-title>
+        <template v-slot:prepend>
+          <v-avatar
+            size="40"
+            elevation="10"
+            :class="{
             'bg-blue': currentDialog?.type === 'conversation' ? isFavorite(currentDialog!, user) : false,
             'bg-brown': currentDialog?.type === 'conversation' ? !isFavorite(currentDialog!, user) : true,
           }"
-        >
-          <span class="text-h5">
-            <v-icon
-              v-if="currentDialog?.type === 'conversation' ? isFavorite(currentDialog as Conversation, user) : false"
-              icon="mdi-bookmark-outline"
-            />
-            <template v-else>
-              {{
-                currentDialog?.type === "conversation"
-                  ? renderChar(currentDialog!, user)
-                  : currentDialog?.name.charAt(0)
-              }}
-            </template>
-          </span>
-        </v-avatar>
-      </template>
-    </v-toolbar>
-  </v-card>
-  <div v-if="currentDialog" class="scroll-container mb-2 mt-2" ref="scrollRef">
-    <MessagesComponent
-      :key="currentDialog?.id"
-      :dialog="currentDialog"
-      :scrollRef="scrollRef"
-      v-model="isEditing"
-      v-model:editMessage="messageItem"
-    />
+          >
+            <span class="text-h5">
+              <v-icon
+                v-if="currentDialog?.type === 'conversation' ? isFavorite(currentDialog as Conversation, user) : false"
+                icon="mdi-bookmark-outline"
+              />
+              <template v-else>
+                {{
+                  currentDialog?.type === "conversation"
+                    ? renderChar(currentDialog!, user)
+                    : currentDialog?.name.charAt(0)
+                }}
+              </template>
+            </span>
+          </v-avatar>
+        </template>
+      </v-toolbar>
+    </v-card>
+    <div class="center">
+      <div class="d-flex flex-column fill-height w-100 align-center">
+        <div class="scroll-container mt-2 mb-2 overflow-y-auto" ref="scrollRef">
+          <MessagesComponent
+            v-if="currentDialog"
+            :key="currentDialog?.id"
+            :dialog="currentDialog"
+            :scrollRef="scrollRef"
+            v-model="isEditing"
+            v-model:editMessage="messageItem"
+          />
+        </div>
+        <v-responsive class="mx-auto mb-4" width="560px">
+          <v-text-field
+            class="border rounded-lg"
+            flat
+            single-line
+            hide-details
+            v-model="body"
+            variant="solo"
+            :append-inner-icon="!isEditing ? 'mdi-send' : 'mdi-check'"
+            type="text"
+            density="comfortable"
+            label="Написать сообщение..."
+            placeholder="Написать сообщение..."
+            @click:append-inner="sendMessage"
+            @keyup.enter="sendMessage"
+            :loading="isLoadingComputed"
+          />
+        </v-responsive>
+      </div>
+    </div>
   </div>
-  <v-responsive class="mx-auto" max-width="790">
-    <v-text-field
-      flat
-      single-line
-      hide-details
-      v-model="body"
-      variant="solo"
-      :append-inner-icon="!isEditing ? 'mdi-send' : 'mdi-check'"
-      type="text"
-      density="comfortable"
-      label="Написать сообщение..."
-      placeholder="Написать сообщение..."
-      @click:append-inner="sendMessage"
-      @keyup.enter="sendMessage"
-      :loading="isLoadingComputed"
-    />
-  </v-responsive>
 </template>
 
 <script setup lang="ts">
@@ -193,10 +201,16 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.scroll-container {
+.center {
   height: 100%;
-  max-height: 740px;
-  overflow-y: auto;
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+.scroll-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
 }
 * {
   scrollbar-width: none;
