@@ -16,11 +16,14 @@ const centrifuge = new Centrifuge(import.meta.env.VITE_CENTRA_URL, {
 const options = {
   isLoaded: false,
   instance: centrifuge,
-  subs: null as Subscription | null,
+  channelSubscription: null as Subscription | null,
+  onlineSubscription: null as Subscription | null,
   connect: (id: number) => {
-    options.subs = centrifuge.newSubscription(`user#${id}`);
+    options.channelSubscription = centrifuge.newSubscription(`user#${id}`);
+    options.channelSubscription.subscribe();
 
-    options.subs.subscribe();
+    options.onlineSubscription = centrifuge.newSubscription("online");
+    options.onlineSubscription.subscribe();
 
     centrifuge.connect();
 

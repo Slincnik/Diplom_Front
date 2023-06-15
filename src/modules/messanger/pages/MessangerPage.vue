@@ -25,8 +25,6 @@ import { POSITION, useToast } from "vue-toastification";
 import { storeToRefs } from "pinia";
 import { useSound } from "@vueuse/sound";
 
-import newMessageSound from "@/assets/sounds/newMessage.mp3";
-
 import useDialogsStore from "@/stores/dialogs";
 import useUserStore from "@/stores/user";
 
@@ -43,7 +41,7 @@ const userStore = useUserStore();
 const router = useRouter();
 const route = useRoute();
 const toast = useToast();
-const { play } = useSound(newMessageSound, {
+const { play } = useSound("@/assets/sounds/newMessage.mp3", {
   volume: 0.3,
 });
 
@@ -73,8 +71,8 @@ const listener = (event: KeyboardEvent) => {
   }
 };
 
-onMounted(() => {
-  if (!centra.subs) return;
+onMounted(async () => {
+  if (!centra.channelSubscription) return;
 
   if (route.query.id) {
     dialogsStore.setCurrentDialog(+route.query.id);
@@ -92,7 +90,20 @@ onMounted(() => {
     }
   };
 
-  centra.subs.on("publication", ({ data }: { data: MessagesFromCentrifugo }) => {
+  // const sendSoundAndToastNotify = <T extends MessagesFromCentrifugo>(
+  //   type: "conversation" | "group",
+  //   dialog?: Conversation | Group,
+  // ) => {
+  //   play();
+  //   const title = renderTitle(dialog, user.value);
+  //   toast.info(`${title}: ${truncateText(data, 7)}`, {
+  //     position: POSITION.TOP_RIGHT,
+  //     timeout: 10000,
+  //     pauseOnFocusLoss: true,
+  //   });
+  // };
+
+  centra.channelSubscription.on("publication", ({ data }: { data: MessagesFromCentrifugo }) => {
     switch (data.type) {
       case "NEW_MESSAGE":
         dialogsStore.addMessageToConversation(data.conversation_id, data.message);
