@@ -76,9 +76,14 @@
 import { shallowReactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import useUserStore from "@/stores/user";
+
+//Type
+import { PAGES } from "@/router/router.types";
 import type { Form } from "../types/form.type";
 import { rules } from "../utils/rules";
-import { PAGES } from "@/router/router.types";
+
+const router = useRouter();
+const userStore = useUserStore();
 
 const data = shallowReactive({
   login: "",
@@ -88,19 +93,12 @@ const data = shallowReactive({
   password: "",
   password_confirmation: "",
 });
-
 const showPassword = ref(false);
 const showConfirmedPassword = ref(false);
-
-const passwordConfirm = (value: string) => data.password === value || "Пароли не совпадают";
-
 const form = ref<Form | null>(null);
-
 const isLoading = ref(false);
 
-const router = useRouter();
-
-const userStore = useUserStore();
+const passwordConfirm = (value: string) => data.password === value || "Пароли не совпадают";
 
 const onSubmit = async () => {
   try {

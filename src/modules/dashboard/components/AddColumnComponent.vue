@@ -25,7 +25,6 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 
-const columnTitle = ref("");
 const props = defineProps<{
   modelValue: boolean;
 }>();
@@ -35,6 +34,8 @@ const emit = defineEmits<{
   (e: "closeDialog", value: void): void;
   (e: "update:modelValue", value: boolean): void;
 }>();
+
+const columnTitle = ref("");
 
 const show = computed({
   get() {

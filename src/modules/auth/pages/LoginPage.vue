@@ -38,24 +38,23 @@
 import { shallowReactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import useUserStore from "@/stores/user";
+
+import { PAGES } from "@/router/router.types";
+
+//Types
 import type { Form } from "../types/form.type";
 import { rules } from "../utils/rules";
-import { PAGES } from "@/router/router.types";
+
+const router = useRouter();
+const userStore = useUserStore();
 
 const data = shallowReactive({
   login: "",
   password: "",
 });
-
 const showPassword = ref(false);
-
 const form = ref<Form | null>(null);
-
 const isLoading = ref(false);
-
-const router = useRouter();
-
-const userStore = useUserStore();
 
 const onSubmit = async () => {
   try {

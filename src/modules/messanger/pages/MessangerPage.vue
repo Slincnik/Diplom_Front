@@ -24,18 +24,17 @@ import { useQuery } from "@tanstack/vue-query";
 import { POSITION, useToast } from "vue-toastification";
 import { storeToRefs } from "pinia";
 import { useSound } from "@vueuse/sound";
-
 import useDialogsStore from "@/stores/dialogs";
 import useUserStore from "@/stores/user";
 
 import centra from "@/plugins/centrifuge";
+import newMessageSound from "@/assets/sounds/newMessage.mp3";
 
-import type { MessagesFromCentrifugo } from "../types/index.types";
-// Components
+// Components & Types
 import Sidebar from "../components/Dialogs/SidebarComponent.vue";
 import HistoryComponent from "../components/Dialogs/History/HistoryComponent.vue";
 import { isFavorite, renderTitle } from "../utils/conversationFunctions";
-import newMessageSound from "@/assets/sounds/newMessage.mp3";
+import type { MessagesFromCentrifugo } from "../types/index.types";
 
 const dialogsStore = useDialogsStore();
 const userStore = useUserStore();
@@ -46,16 +45,16 @@ const { play } = useSound(newMessageSound, {
   volume: 0.3,
 });
 
-const user = computed(() => userStore.getUser);
-
-const { currentDialogId, tab } = storeToRefs(dialogsStore);
-
-const currentDialog = computed(() => dialogsStore.getConversationOrGroup);
-
 const { isLoading } = useQuery({
   queryKey: ["dialogs"],
   queryFn: dialogsStore.fetchDialogs,
 });
+
+const { currentDialogId, tab } = storeToRefs(dialogsStore);
+
+const user = computed(() => userStore.getUser);
+
+const currentDialog = computed(() => dialogsStore.getConversationOrGroup);
 
 watch([currentDialogId, tab], ([newId, newTab]) => {
   router.push({

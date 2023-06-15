@@ -17,8 +17,8 @@
   </div>
 </template>
 <script setup lang="ts">
-import type { Card } from "@/stores/dashboard/types";
 import { ref } from "vue";
+import type { Card } from "@/stores/dashboard/types";
 
 defineProps<{
   card: Card;

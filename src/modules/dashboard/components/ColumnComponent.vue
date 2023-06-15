@@ -52,8 +52,12 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import cloneDeep from "lodash/cloneDeep";
+import draggableComponent from "vuedraggable";
 import useDashboardStore from "@/stores/dashboard";
 
+//Components & Types
+import CardComponent from "./CardComponent.vue";
+import AddCardComponent from "./AddCardComponent.vue";
 import type { Column, Card, Board } from "@/stores/dashboard/types";
 
 const props = defineProps<{
@@ -62,10 +66,6 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits(["reorder-change", "reorder-commit"]);
-//Components
-import draggableComponent from "vuedraggable";
-import CardComponent from "./CardComponent.vue";
-import AddCardComponent from "./AddCardComponent.vue";
 
 const dashboardStore = useDashboardStore();
 
@@ -84,15 +84,15 @@ const columnTitle = computed({
 
 const newColumnTitle = ref(columnTitle.value);
 
+const dragOptions = computed(() => {
+  return { animation: 200, group: "column" };
+});
+
 // Keep the cards up-to-date
 watch(
   () => props.column,
   () => (cards.value = props.column.cards),
 );
-
-const dragOptions = computed(() => {
-  return { animation: 200, group: "column" };
-});
 
 const addCard = async (content: string) => {
   if (!props.board) return;

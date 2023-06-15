@@ -25,10 +25,17 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 
-const cardContent = ref("");
 const props = defineProps<{
   modelValue: boolean;
 }>();
+
+const emit = defineEmits<{
+  (e: "clickToCreate", value: string): void;
+  (e: "closeDialog", value: void): void;
+  (e: "update:modelValue", value: boolean): void;
+}>();
+
+const cardContent = ref("");
 
 const show = computed({
   get() {
@@ -38,12 +45,6 @@ const show = computed({
     emit("update:modelValue", props.modelValue);
   },
 });
-
-const emit = defineEmits<{
-  (e: "clickToCreate", value: string): void;
-  (e: "closeDialog", value: void): void;
-  (e: "update:modelValue", value: boolean): void;
-}>();
 
 const clickToCreate = () => {
   emit("clickToCreate", cardContent.value);

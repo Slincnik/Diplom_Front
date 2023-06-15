@@ -69,24 +69,18 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from "vue";
 import { useInfiniteScroll } from "@vueuse/core";
-
-// Stores
 import useDialogsStore from "@/stores/dialogs";
 import useUserStore from "@/stores/user";
 
-// Components
+// Components & Types
 import MessagesComponent from "./MessagesComponent.vue";
-
-// Utils
-import { renderChar, renderTitle, isFavorite, giveRecipientId } from "@/modules/messanger/utils/conversationFunctions";
-
-//Types
 import type { Conversation, Message, MessageGroup } from "@/modules/messanger/types/index.types";
+
+import { renderChar, renderTitle, isFavorite, giveRecipientId } from "@/modules/messanger/utils/conversationFunctions";
 
 const dialogsStore = useDialogsStore();
 const userStore = useUserStore();
 
-//Refs
 const body = ref("");
 const scrollRef = ref<HTMLElement | null>(null);
 const isFirstLoading = ref(false);
@@ -94,12 +88,14 @@ const isAddLoading = ref(false);
 const isEditing = ref(false);
 const messageItem = ref<Message | MessageGroup | null>(null);
 
-//Computed
-const user = userStore.getUser;
+const user = computed(() => userStore.getUser);
+
 const cursors = computed(() =>
   dialogsStore.cursors.find(({ id, type }) => id === dialogsStore.currentDialogId && type === dialogsStore.tab),
 );
+
 const currentDialog = computed(() => dialogsStore.getConversationOrGroup);
+
 const isLoadingComputed = computed(() => {
   if (isFirstLoading.value) return true;
 
@@ -116,15 +112,16 @@ const isLoadingComputed = computed(() => {
 
   return false;
 });
+
 const recipientId = computed(() => {
   if (!currentDialog.value) return 0;
 
-  if (!user) return 0;
+  if (!user.value) return 0;
 
   if (dialogsStore.tab === "groups") return 0;
 
   const conversation = currentDialog.value as Conversation;
-  return giveRecipientId(conversation, user);
+  return giveRecipientId(conversation, user.value);
 });
 
 watch(
@@ -195,9 +192,7 @@ const sendMessage = () => {
   body.value = "";
 };
 
-onMounted(() => {
-  loadingFirstMessages();
-});
+onMounted(loadingFirstMessages);
 </script>
 
 <style scoped>

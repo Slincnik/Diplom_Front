@@ -28,16 +28,16 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import { storeToRefs } from "pinia";
-import type { OrderedCardsInColumns } from "@/stores/dashboard/types";
-
 import useDashboardStore from "@/stores/dashboard";
 
+// Component & Types
 import ColumnComponent from "../components/ColumnComponent.vue";
 import AddColumnComponent from "../components/AddColumnComponent.vue";
+import type { OrderedCardsInColumns } from "@/stores/dashboard/types";
 
 const dashboardStore = useDashboardStore();
-const { board } = storeToRefs(dashboardStore);
 
+const { board } = storeToRefs(dashboardStore);
 const isLoading = ref(false);
 const showAddColumnDialog = ref(false);
 const columnsWithOrder = ref<OrderedCardsInColumns[]>([]);

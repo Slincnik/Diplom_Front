@@ -79,13 +79,23 @@
 <script setup lang="ts">
 import { ref, onMounted, nextTick, watch, reactive, computed } from "vue";
 import { POSITION, useToast } from "vue-toastification";
-
-// Stores
 import useUserStore from "@/stores/user";
 import useDialogsStore from "@/stores/dialogs";
 
 //Types
 import type { Conversation, Group, Message, MessageGroup } from "@/modules/messanger/types/index.types";
+
+const props = defineProps<{
+  scrollRef: HTMLElement | null;
+  dialog: Conversation | Group;
+  modelValue: boolean;
+  editMessage: Message | MessageGroup | null;
+}>();
+
+const emit = defineEmits<{
+  (e: "update:modelValue", value: boolean): void;
+  (e: "update:editMessage", value: Message | MessageGroup): void;
+}>();
 
 const menuItemsOriginal = [
   // {
@@ -114,18 +124,6 @@ const menuItemsOriginal = [
   },
 ];
 
-const props = defineProps<{
-  scrollRef: HTMLElement | null;
-  dialog: Conversation | Group;
-  modelValue: boolean;
-  editMessage: Message | MessageGroup | null;
-}>();
-
-const emit = defineEmits<{
-  (e: "update:modelValue", value: boolean): void;
-  (e: "update:editMessage", value: Message | MessageGroup): void;
-}>();
-
 const userStore = useUserStore();
 const dialogsStore = useDialogsStore();
 const toast = useToast();
@@ -139,7 +137,8 @@ const menuSettings = ref({
 const menuItems = reactive([...menuItemsOriginal]);
 const currentItem = ref<Message | MessageGroup | null>(null);
 
-const user = userStore.getUser;
+const user = computed(() => userStore.getUser);
+
 const isUpdating = computed(() => {
   return (item: Message | MessageGroup) => new Date(item.created_at).getTime() !== new Date(item.updated_at).getTime();
 });
@@ -231,14 +230,14 @@ const RMBClick = (event: MouseEvent, item: Message | MessageGroup) => {
   Object.assign(menuItems, menuItemsOriginal);
 
   menuItems.forEach(menu => {
-    if (menu.id === 2 && item.sender.id !== user?.id) {
+    if (menu.id === 2 && item.sender.id !== user.value?.id) {
       menuItems.splice(
         menuItems.findIndex(menu => menu.id === 2),
         1,
       );
     }
 
-    if (menu.id === 4 && item.sender.id !== user?.id)
+    if (menu.id === 4 && item.sender.id !== user.value?.id)
       menuItems.splice(
         menuItems.findIndex(menu => menu.id === 4),
         1,

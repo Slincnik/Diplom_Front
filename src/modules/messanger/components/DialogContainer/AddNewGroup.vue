@@ -80,6 +80,15 @@ const users = ref<number[]>([]);
 const groupName = ref("");
 const isStoreLoading = ref(false);
 
+const show = computed({
+  get() {
+    return props.modelValue;
+  },
+  set() {
+    emit("update:modelValue", props.modelValue);
+  },
+});
+
 const closeModal = () => {
   users.value = [];
   groupName.value = "";
@@ -98,13 +107,4 @@ const sendMessage = async () => {
   isStoreLoading.value = false;
   closeModal();
 };
-
-const show = computed({
-  get() {
-    return props.modelValue;
-  },
-  set() {
-    emit("update:modelValue", props.modelValue);
-  },
-});
 </script>

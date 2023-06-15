@@ -38,6 +38,7 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import { useQuery } from "@tanstack/vue-query";
+
 import useDialogsStore from "@/stores/dialogs";
 import useUserStore from "@/stores/user";
 
@@ -71,6 +72,15 @@ const user = ref<number | null>(null);
 const message = ref("");
 const isStoreLoading = ref(false);
 
+const show = computed({
+  get() {
+    return props.modelValue;
+  },
+  set() {
+    emit("update:modelValue", props.modelValue);
+  },
+});
+
 const closeModal = () => {
   user.value = null;
   message.value = "";
@@ -89,13 +99,4 @@ const sendMessage = async () => {
   isStoreLoading.value = false;
   closeModal();
 };
-
-const show = computed({
-  get() {
-    return props.modelValue;
-  },
-  set() {
-    emit("update:modelValue", props.modelValue);
-  },
-});
 </script>

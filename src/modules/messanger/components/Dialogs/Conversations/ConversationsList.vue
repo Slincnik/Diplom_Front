@@ -48,7 +48,7 @@ import { storeToRefs } from "pinia";
 import useUserStore from "@/stores/user";
 import useDialogsStore from "@/stores/dialogs";
 
-//Types
+//Types & Functions
 import type { Conversation } from "@/modules/messanger/types/index.types";
 import { isFavorite, renderTitle, renderChar } from "@/modules/messanger/utils/conversationFunctions";
 

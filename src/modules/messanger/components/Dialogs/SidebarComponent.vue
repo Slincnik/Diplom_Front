@@ -51,10 +51,15 @@
 import { ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import useDialogsStore from "@/stores/dialogs";
+
+//Components
 import ConversationsList from "./Conversations/ConversationsList.vue";
 import GroupsList from "./Groups/GroupsList.vue";
 import AddNewConversation from "../DialogContainer/AddNewConversation.vue";
 import AddNewGroup from "../DialogContainer/AddNewGroup.vue";
+
+const dialogStore = useDialogsStore();
+const router = useRouter();
 
 const items = [
   {
@@ -73,10 +78,6 @@ const components = {
   conversation: AddNewConversation,
   group: AddNewGroup,
 };
-
-const dialogStore = useDialogsStore();
-
-const router = useRouter();
 
 const isOver = ref(false);
 const showMenu = ref(false);
