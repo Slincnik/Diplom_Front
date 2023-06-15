@@ -34,8 +34,14 @@
         </v-list-item>
       </v-list>
     </v-menu>
-    <AddNewConversation v-model="showAddConversation" @close-modal="showAddConversation = false" />
-    <AddNewGroup v-model="showAddGroup" @close-modal="showAddGroup = false" />
+    <KeepAlive>
+      <component
+        :is="components[currentDialog]"
+        :key="currentDialog"
+        v-model="showDialog"
+        @closeModal="showDialog = false"
+      />
+    </KeepAlive>
   </div>
 </template>
 
@@ -61,22 +67,23 @@ const items = [
   },
 ];
 
+const components = {
+  conversation: AddNewConversation,
+  group: AddNewGroup,
+};
+
 const dialogStore = useDialogsStore();
 
 const router = useRouter();
 
 const isOver = ref(false);
 const showMenu = ref(false);
-const showAddConversation = ref(false);
-const showAddGroup = ref(false);
+const showDialog = ref(false);
+const currentDialog = ref<"conversation" | "group">("conversation");
 
 const menuClicked = (type: "conversation" | "group") => {
-  if (type === "conversation") {
-    showAddConversation.value = true;
-  }
-  if (type === "group") {
-    showAddGroup.value = true;
-  }
+  showDialog.value = true;
+  currentDialog.value = type;
 };
 
 watch(isOver, value => {
