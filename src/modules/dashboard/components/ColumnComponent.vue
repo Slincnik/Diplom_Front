@@ -1,27 +1,45 @@
 <template>
   <div class="elevation-5 border rounded-lg mt-2 mb-2 ml-2 column-width mr-4">
-    <div class="d-flex align-center justify-space-between mx-auto">
-      <p class="font-weight-medium ml-4">{{ column.title }}</p>
-      <v-btn variant="text" @click="removeColumn(column.id)" size="36" icon="mdi-close" />
-    </div>
-    <v-divider />
-    <draggableComponent
-      :list="column.cards"
-      class="list-group overflow-y-auto"
-      v-bind="dragOptions"
-      :item-key="column.title"
-      group="columns"
-      ghost-class="ghost-card"
-      @change="onReorderCards"
-      @end="onReorderEnds"
-    >
-      <template #item="{ element }: { element: Card }">
-        <CardComponent class="cursor-grable" :key="element.id" @delete-click="removeCard" :card="element" />
-      </template>
-    </draggableComponent>
-    <v-divider />
-    <div class="ma-2 mx-auto">
-      <v-btn @click="showAddCardDialog = true">Добавить карточку</v-btn>
+    <div class="d-flex flex-column fill-height">
+      <div
+        class="d-flex align-center justify-space-between"
+        :class="{
+          'mx-auto': !isEditing,
+        }"
+      >
+        <p v-if="!isEditing" @dblclick="isEditing = true" class="font-weight-medium ml-4">{{ columnTitle }}</p>
+        <v-text-field
+          v-else
+          autofocus
+          density="compact"
+          single-line
+          variant="underlined"
+          hide-details
+          class="ml-4 custom-text-field pa-0"
+          v-model="columnTitle"
+          @keyup.enter="editColumn"
+        />
+        <v-btn variant="text" @click="removeColumn(column.id)" size="36" icon="mdi-close" />
+      </div>
+      <v-divider />
+      <draggableComponent
+        :list="column.cards"
+        class="list-group overflow-y-auto"
+        v-bind="dragOptions"
+        :item-key="columnTitle"
+        group="columns"
+        ghost-class="ghost-card"
+        @change="onReorderCards"
+        @end="onReorderEnds"
+      >
+        <template #item="{ element }: { element: Card }">
+          <CardComponent class="cursor-grable" :key="element.id" @delete-click="removeCard" :card="element" />
+        </template>
+      </draggableComponent>
+      <v-divider />
+      <div class="mx-auto my-2">
+        <v-btn @click="showAddCardDialog = true">Добавить карточку</v-btn>
+      </div>
     </div>
     <AddCardComponent
       v-model="showAddCardDialog"
@@ -32,7 +50,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import cloneDeep from "lodash/cloneDeep";
 import useDashboardStore from "@/stores/dashboard";
 
@@ -52,8 +70,19 @@ import AddCardComponent from "./AddCardComponent.vue";
 const dashboardStore = useDashboardStore();
 
 const showAddCardDialog = ref(false);
-const columnsWithOrder = ref<unknown[]>([]);
+const isEditing = ref(false);
 const cards = ref(props.column.cards);
+
+const columnTitle = computed({
+  get() {
+    return props.column.title;
+  },
+  set(value) {
+    newColumnTitle.value = value;
+  },
+});
+
+const newColumnTitle = ref(columnTitle.value);
 
 // Keep the cards up-to-date
 watch(
@@ -77,6 +106,13 @@ const addCard = async (content: string) => {
     position: 2,
     columnId: props.column.id,
   });
+};
+
+const editColumn = async () => {
+  isEditing.value = false;
+  if (props.column.title === newColumnTitle.value) return;
+
+  await dashboardStore.editColumnTitle(props.column.id, newColumnTitle.value);
 };
 
 const removeColumn = async (columnId: number) => {
@@ -119,18 +155,34 @@ const onReorderCards = () => {
 const onReorderEnds = () => {
   emit("reorder-commit");
 };
+
+const listener = (e: KeyboardEvent) => {
+  if (e.key === "Escape") {
+    if (!isEditing.value) return;
+    isEditing.value = false;
+  }
+};
+
+onMounted(() => {
+  window.addEventListener("keyup", listener);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("keyup", listener);
+});
 </script>
 
 <style scoped>
+.custom-text-field >>> .v-field__input {
+  padding-top: 0 !important;
+}
 .column-width {
   min-width: 320px;
-  width: 240px !important;
+  width: 320px !important;
 }
 
 .list-group {
-  min-height: 760px;
   height: 100%;
-  max-height: 760px;
   overflow-x: hidden;
 }
 

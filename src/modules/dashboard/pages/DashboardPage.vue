@@ -1,29 +1,34 @@
 <template>
-  <v-progress-circular v-if="!board" size="large" class="mx-auto" indeterminate />
-  <div v-else class="bg-default fill-height d-flex overflow-x-auto">
-    <v-fade-transition group>
-      <ColumnComponent
-        v-for="column in board.columns"
-        :key="column.id"
-        :column="column"
-        :board="board"
-        @reorder-change="onReorderChange"
-        @reorder-commit="onReorderCommit"
+  <v-container fluid class="fill-height overflow-x-auto">
+    <v-progress-circular v-if="!board" size="large" class="mx-auto" indeterminate />
+    <div v-else class="bg-default fill-height d-flex">
+      <v-fade-transition group hideOnLeave>
+        <ColumnComponent
+          v-for="column in board.columns"
+          :key="column.id"
+          :column="column"
+          :board="board"
+          @reorder-change="onReorderChange"
+          @reorder-commit="onReorderCommit"
+        />
+        <div key="addButton" class="my-2">
+          <v-btn prepend-icon="mdi-plus" :loading="isLoading" @click="showAddColumnDialog = true"
+            >Добавить столбец</v-btn
+          >
+        </div>
+      </v-fade-transition>
+      <AddColumnComponent
+        v-model="showAddColumnDialog"
+        @click-to-create="addColumn"
+        @close-dialog="showAddColumnDialog = false"
       />
-    </v-fade-transition>
-    <div class="my-2">
-      <v-btn prepend-icon="mdi-plus" :loading="isLoading" @click="showAddColumnDialog = true">Добавить столбец</v-btn>
     </div>
-    <AddColumnComponent
-      v-model="showAddColumnDialog"
-      @click-to-create="addColumn"
-      @close-dialog="showAddColumnDialog = false"
-    />
-  </div>
+  </v-container>
 </template>
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import { storeToRefs } from "pinia";
+import type { OrderedCardsInColumns } from "@/stores/dashboard/types";
 
 import useDashboardStore from "@/stores/dashboard";
 
@@ -35,7 +40,7 @@ const { board } = storeToRefs(dashboardStore);
 
 const isLoading = ref(false);
 const showAddColumnDialog = ref(false);
-const columnsWithOrder = ref([]);
+const columnsWithOrder = ref<OrderedCardsInColumns[]>([]);
 
 const addColumn = async (title: string) => {
   if (!board.value) return;
@@ -51,7 +56,7 @@ const addColumn = async (title: string) => {
   isLoading.value = false;
 };
 
-const onReorderChange = column => {
+const onReorderChange = (column: OrderedCardsInColumns) => {
   columnsWithOrder.value?.push(column);
 };
 
@@ -61,6 +66,7 @@ const onReorderCommit = () => {
   }
 
   dashboardStore.reorderCards(columnsWithOrder.value);
+  columnsWithOrder.value = [];
 };
 
 onMounted(dashboardStore.getBoard);

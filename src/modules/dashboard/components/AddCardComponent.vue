@@ -13,7 +13,7 @@
         density="comfortable"
         label="Введите содержание..."
         placeholder="Введите содержание.."
-        @keyup.enter="emit('clickToCreate', cardContent)"
+        @keyup.enter="clickToCreate"
       />
       <v-card-actions>
         <v-btn color="blue-darken-1" variant="text" @click="emit('closeDialog')"> Закрыть </v-btn>

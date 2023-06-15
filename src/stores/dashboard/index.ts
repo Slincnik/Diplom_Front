@@ -29,6 +29,16 @@ const useDashboardStore = defineStore("dashboard", {
         cards: [],
       });
     },
+    async editColumnTitle(columnId: number, newTitle: string) {
+      const column = this.board?.columns.find(({ id }) => id === columnId);
+      if (!column) return;
+
+      column.title = newTitle;
+
+      await api.post<ApiResponse>(`board/column/${columnId}`, {
+        title: newTitle,
+      });
+    },
     async removeColumn(columnId: number) {
       this.board?.columns.splice(
         this.board.columns.findIndex(({ id }) => id === columnId),

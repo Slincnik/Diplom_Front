@@ -26,3 +26,8 @@ export type RemoveCard = {
   columnId: number;
   cardId: number;
 };
+
+export type OrderedCardsInColumns = {
+  id: number;
+  cards: Card[];
+};
