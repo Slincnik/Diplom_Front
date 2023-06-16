@@ -23,13 +23,7 @@
             {{ item.response.body }}
           </v-list-item-subtitle>
         </v-list-item>
-        <v-list-item-title
-          class="text-wrap text-white"
-          :class="{
-            'text-right': item.sender.id !== user?.id,
-            'text-left': item.sender.id === user?.id,
-          }"
-        >
+        <v-list-item-title class="text-wrap text-left text-white">
           {{ item.body }}
         </v-list-item-title>
         <v-list-item-subtitle>
@@ -65,9 +59,13 @@
     </v-fade-transition>
     <v-menu
       v-model="showMenu"
-      location="top"
+      origin="left"
       location-strategy="static"
-      :style="{ left: menuSettings.x + 'px', top: menuSettings.y - 200 + 'px', maxHeight: '300px' }"
+      max-height="220"
+      max-width="192"
+      min-height="220"
+      min-width="192"
+      :style="{ left: menuSettings.x - 80 + 'px', top: menuSettings.y - 200 + 'px', maxHeight: '300px' }"
     >
       <v-list class="rounded-lg">
         <v-list-item class="onHover rounded-lg mx-1" v-for="item in menuItems" :key="item.id">
@@ -290,9 +288,8 @@ onMounted(scrollToTop);
   min-height: 100%;
   width: 100%;
   background-color: transparent;
-  max-width: 66rem;
+  max-width: 37rem;
   margin: 0 auto;
-  position: absolute;
 }
 .onHover:hover {
   background-color: rgb(45, 45, 45);

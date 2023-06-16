@@ -1,39 +1,42 @@
 <template>
   <div class="d-flex flex-column fill-height">
-    <v-card>
-      <v-toolbar dark prominent density="default" class="bg-transparent">
-        <v-toolbar-title class="d-flex">
-          {{ currentDialog?.type === "conversation" ? renderTitle(currentDialog!, user) : currentDialog?.name }}
-        </v-toolbar-title>
-        <template v-slot:prepend>
-          <v-avatar
-            size="40"
-            elevation="10"
-            :class="{
+    <v-toolbar dark prominent density="compact" class="toolbar elevation-2">
+      <v-toolbar-title class="d-flex">
+        {{ currentDialog?.type === "conversation" ? renderTitle(currentDialog!, user) : currentDialog?.name }}
+      </v-toolbar-title>
+      <template v-slot:prepend>
+        <v-btn
+          @click.prevent="dialogsStore.setCurrentDialog(null)"
+          icon="mdi-keyboard-backspace"
+          class="mr-2 d-block d-sm-block d-md-none"
+        />
+        <v-avatar
+          size="40"
+          elevation="10"
+          :class="{
             'bg-blue': currentDialog?.type === 'conversation' ? isFavorite(currentDialog!, user) : false,
             'bg-brown': currentDialog?.type === 'conversation' ? !isFavorite(currentDialog!, user) : true,
           }"
-          >
-            <span class="text-h5">
-              <v-icon
-                v-if="currentDialog?.type === 'conversation' ? isFavorite(currentDialog as Conversation, user) : false"
-                icon="mdi-bookmark-outline"
-              />
-              <template v-else>
-                {{
-                  currentDialog?.type === "conversation"
-                    ? renderChar(currentDialog!, user)
-                    : currentDialog?.name.charAt(0)
-                }}
-              </template>
-            </span>
-          </v-avatar>
-        </template>
-      </v-toolbar>
-    </v-card>
+        >
+          <span class="text-h5">
+            <v-icon
+              v-if="currentDialog?.type === 'conversation' ? isFavorite(currentDialog as Conversation, user) : false"
+              icon="mdi-bookmark-outline"
+            />
+            <template v-else>
+              {{
+                currentDialog?.type === "conversation"
+                  ? renderChar(currentDialog!, user)
+                  : currentDialog?.name.charAt(0)
+              }}
+            </template>
+          </span>
+        </v-avatar>
+      </template>
+    </v-toolbar>
     <div class="center">
-      <div class="d-flex flex-column fill-height w-100 align-center">
-        <div key="scroll-container" class="scroll-container mt-2 mb-2 overflow-y-auto" ref="scrollRef">
+      <div class="scroll-container d-flex flex-column align-center">
+        <div key="scroll-container" class="fill-height w-100 mt-2 mb-2 overflow-y-auto" ref="scrollRef">
           <MessagesComponent
             v-if="currentDialog"
             :key="currentDialog?.id"
@@ -259,6 +262,9 @@ onMounted(loadingFirstMessages);
 </script>
 
 <style scoped>
+.toolbar {
+  background: rgb(var(--v-theme-surface));
+}
 .replyItem {
   background: rgb(var(--v-theme-surface));
 }
@@ -275,7 +281,7 @@ onMounted(loadingFirstMessages);
 .scroll-container {
   width: 100%;
   height: 100%;
-  position: relative;
+  position: absolute;
 }
 * {
   scrollbar-width: none;

@@ -1,6 +1,17 @@
 <template>
   <v-row no-gutters class="fill-height">
-    <v-col xs="5" sm="5" md="3" lg="3" xl="3" xxl="3" class="fill-height" style="max-width: 360px">
+    <v-col
+      key="sidebar"
+      sm="5"
+      md="3"
+      lg="3"
+      xl="2"
+      xxl="1"
+      class="fill-height flex-sm-fill"
+      :class="{
+        'hidden-sm-and-down': currentDialogId,
+      }"
+    >
       <v-progress-circular
         v-if="isLoading"
         size="large"
@@ -9,8 +20,17 @@
       />
       <Sidebar v-else />
     </v-col>
-    <v-divider vertical />
-    <v-col class="d-none d-sm-block">
+    <v-divider key="center" vertical />
+    <v-col
+      key="history"
+      :sm="currentDialogId ? '12' : '7'"
+      md="9"
+      xl="10"
+      xxl="11"
+      :class="{
+        'd-none d-sm-block': !currentDialogId,
+      }"
+    >
       <HistoryComponent v-if="currentDialog" />
       <div v-else class="fill-height d-flex flex-column justify-center align-center">Выберите чат</div>
     </v-col>
