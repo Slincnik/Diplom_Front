@@ -33,34 +33,58 @@
     </v-card>
     <div class="center">
       <div class="d-flex flex-column fill-height w-100 align-center">
-        <div class="scroll-container mt-2 mb-2 overflow-y-auto" ref="scrollRef">
+        <div key="scroll-container" class="scroll-container mt-2 mb-2 overflow-y-auto" ref="scrollRef">
           <MessagesComponent
             v-if="currentDialog"
             :key="currentDialog?.id"
             :dialog="currentDialog"
             :scrollRef="scrollRef"
             @editMessage="editMessage"
+            @reply-message="replyMessage"
           />
         </div>
-        <v-responsive class="mx-auto mb-4" width="560px">
-          <v-text-field
-            class="border rounded-lg"
-            flat
-            autofocus
-            single-line
-            hide-details
-            v-model="body"
-            ref="messageFieldRef"
-            variant="solo"
-            :append-inner-icon="computedIcon"
-            type="text"
-            density="comfortable"
-            label="Написать сообщение..."
-            placeholder="Написать сообщение..."
-            @click:append-inner="sendMessage"
-            @keyup.enter="sendMessage"
-            :loading="isLoadingComputed"
-          />
+        <v-responsive class="mx-auto mb-4 elevation-4" width="560px">
+          <v-slide-y-reverse-transition group>
+            <v-list-item
+              v-if="isReply"
+              key="replyField"
+              append-icon="mdi-close"
+              class="replyItem"
+              :class="{
+                'rounded-lg border': !isReply,
+                'rounded-t-xl': isReply,
+              }"
+            >
+              <template #prepend>
+                <v-icon icon="mdi-reply-outline" class="replyIconMargin" />
+                <v-divider vertical class="border-opacity-50 mr-2" />
+              </template>
+              <v-list-item-title class="text-wrap text-white">
+                {{ messageItem?.body }}
+              </v-list-item-title>
+              <template #append>
+                <v-icon icon="mdi-close" @click="resetReply" />
+              </template>
+            </v-list-item>
+            <v-text-field
+              key="textField"
+              flat
+              autofocus
+              single-line
+              hide-details
+              v-model="body"
+              ref="messageFieldRef"
+              variant="solo"
+              :append-inner-icon="computedIcon"
+              type="text"
+              density="comfortable"
+              label="Написать сообщение..."
+              placeholder="Написать сообщение..."
+              @click:append-inner="sendMessage"
+              @keyup.enter="sendMessage"
+              :loading="isLoadingComputed"
+            />
+          </v-slide-y-reverse-transition>
         </v-responsive>
       </div>
     </div>
@@ -87,6 +111,7 @@ const scrollRef = ref<HTMLElement | null>(null);
 const isFirstLoading = ref(false);
 const isAddLoading = ref(false);
 const isEditing = ref(false);
+const isReply = ref(false);
 const messageItem = ref<Message | MessageGroup | null>(null);
 const messageFieldRef = ref<HTMLInputElement | null>(null);
 
@@ -135,10 +160,23 @@ const recipientId = computed(() => {
 });
 
 const editMessage = (settings: { message: Message | MessageGroup; isEditing: boolean }) => {
+  isReply.value = false;
   messageFieldRef.value?.focus();
   messageItem.value = settings.message;
   isEditing.value = settings.isEditing;
   body.value = settings.message.body;
+};
+
+const replyMessage = (settings: { message: Message | MessageGroup; isReply: boolean }) => {
+  isEditing.value = false;
+  isReply.value = true;
+  messageFieldRef.value?.focus();
+  messageItem.value = settings.message;
+};
+
+const resetReply = () => {
+  isReply.value = false;
+  messageItem.value = null;
 };
 
 watch(
@@ -176,6 +214,7 @@ const loadingFirstMessages = async () => {
 const resetTextField = () => {
   isEditing.value = false;
   body.value = "";
+  messageItem.value = null;
   isAddLoading.value = false;
 };
 
@@ -195,6 +234,8 @@ const sendMessage = () => {
       });
     }
 
+    if (body.value === messageItem.value.body) return resetTextField();
+
     dialogsStore.editMessage(body.value, messageItem.value.id).then(() => {
       isAddLoading.value = false;
       isEditing.value = false;
@@ -206,9 +247,11 @@ const sendMessage = () => {
 
   if (!body.value) return;
 
-  dialogsStore.storeMessage(body.value, recipientId.value).then(() => {
+  dialogsStore.storeMessage(body.value, recipientId.value, messageItem.value?.id).then(() => {
     isAddLoading.value = false;
   });
+  messageItem.value = null;
+  isReply.value = false;
   body.value = "";
 };
 
@@ -216,6 +259,13 @@ onMounted(loadingFirstMessages);
 </script>
 
 <style scoped>
+.replyItem {
+  background: rgb(var(--v-theme-surface));
+}
+.replyIconMargin {
+  margin-inline-end: 10px !important;
+}
+
 .center {
   height: 100%;
   width: 100%;

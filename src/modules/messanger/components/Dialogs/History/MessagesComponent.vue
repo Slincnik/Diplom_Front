@@ -1,6 +1,6 @@
 <template>
   <div class="message-container d-flex flex-column justify-end">
-    <v-fade-transition group hideOnLeave>
+    <v-fade-transition group>
       <v-list-item
         class="mb-4 rounded-lg"
         v-for="item in dialog.messages"
@@ -15,6 +15,14 @@
         max-width="300px"
         @contextmenu.prevent="(event: MouseEvent) => RMBClick(event, item)"
       >
+        <v-list-item v-if="item.response" class="pl-2 pr-0 itemReply">
+          <v-list-item-title class="text-white text-wrap">
+            {{ item.response.sender.fullname }}
+          </v-list-item-title>
+          <v-list-item-subtitle class="text-white text-high-emphasis text-wrap">
+            {{ item.response.body }}
+          </v-list-item-subtitle>
+        </v-list-item>
         <v-list-item-title
           class="text-wrap text-white"
           :class="{
@@ -92,15 +100,16 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: "editMessage", value: { message: Message | MessageGroup; isEditing: boolean }): void;
+  (e: "replyMessage", value: { message: Message | MessageGroup; isReply: boolean }): void;
 }>();
 
 const menuItemsOriginal = [
-  // {
-  //   id: 1,
-  //   title: "Ответить",
-  //   icon: "mdi-reply",
-  //   type: "reply",
-  // },
+  {
+    id: 1,
+    title: "Ответить",
+    icon: "mdi-reply",
+    type: "reply",
+  },
   {
     id: 2,
     title: "Изменить",
@@ -207,6 +216,10 @@ const menuClicked = async (event: "delete" | "edit" | "copy" | "reply") => {
     });
   }
 
+  if (event === "reply") {
+    emit("replyMessage", { message: currentItem.value, isReply: true });
+  }
+
   currentItem.value = null;
 };
 
@@ -263,6 +276,16 @@ onMounted(scrollToTop);
 </script>
 
 <style scoped>
+.itemReply::before {
+  content: "";
+  display: block;
+  position: absolute;
+  top: 0.3125rem;
+  bottom: 0.3125rem;
+  width: 2px;
+  background: white;
+  border-radius: 2px;
+}
 .message-container {
   min-height: 100%;
   width: 100%;
