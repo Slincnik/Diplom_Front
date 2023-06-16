@@ -191,12 +191,14 @@ const sendMessage = () => {
 
       return dialogsStore.deleteMessage(messageItem.value.id).then(() => {
         isAddLoading.value = false;
+        messageItem.value = null;
       });
     }
 
     dialogsStore.editMessage(body.value, messageItem.value.id).then(() => {
       isAddLoading.value = false;
       isEditing.value = false;
+      messageItem.value = null;
     });
     body.value = "";
     return;
