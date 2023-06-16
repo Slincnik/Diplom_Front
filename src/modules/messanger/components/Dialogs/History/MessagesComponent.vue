@@ -1,6 +1,6 @@
 <template>
   <div class="message-container d-flex flex-column justify-end">
-    <v-fade-transition group>
+    <v-fade-transition group hideOnLeave>
       <v-list-item
         class="mb-4 rounded-lg"
         v-for="item in dialog.messages"
@@ -18,8 +18,8 @@
         <v-list-item-title
           class="text-wrap text-white"
           :class="{
-            'text-right': item.sender.id === user?.id,
-            'text-left': item.sender.id !== user?.id,
+            'text-right': item.sender.id !== user?.id,
+            'text-left': item.sender.id === user?.id,
           }"
         >
           {{ item.body }}
@@ -88,13 +88,10 @@ import type { Conversation, Group, Message, MessageGroup } from "@/modules/messa
 const props = defineProps<{
   scrollRef: HTMLElement | null;
   dialog: Conversation | Group;
-  modelValue: boolean;
-  editMessage: Message | MessageGroup | null;
 }>();
 
 const emit = defineEmits<{
-  (e: "update:modelValue", value: boolean): void;
-  (e: "update:editMessage", value: Message | MessageGroup): void;
+  (e: "editMessage", value: { message: Message | MessageGroup; isEditing: boolean }): void;
 }>();
 
 const menuItemsOriginal = [
@@ -177,8 +174,7 @@ const menuClicked = async (event: "delete" | "edit" | "copy" | "reply") => {
   }
 
   if (event === "edit") {
-    emit("update:modelValue", true);
-    emit("update:editMessage", currentItem.value);
+    emit("editMessage", { message: currentItem.value, isEditing: true });
   }
 
   if (event === "copy") {
@@ -210,6 +206,8 @@ const menuClicked = async (event: "delete" | "edit" | "copy" | "reply") => {
       position: POSITION.TOP_CENTER,
     });
   }
+
+  currentItem.value = null;
 };
 
 const formatDate = (value: string) => {

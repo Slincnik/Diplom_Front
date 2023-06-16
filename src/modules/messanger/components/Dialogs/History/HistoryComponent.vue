@@ -39,19 +39,20 @@
             :key="currentDialog?.id"
             :dialog="currentDialog"
             :scrollRef="scrollRef"
-            v-model="isEditing"
-            v-model:editMessage="messageItem"
+            @editMessage="editMessage"
           />
         </div>
         <v-responsive class="mx-auto mb-4" width="560px">
           <v-text-field
             class="border rounded-lg"
             flat
+            autofocus
             single-line
             hide-details
             v-model="body"
+            ref="messageFieldRef"
             variant="solo"
-            :append-inner-icon="!isEditing ? 'mdi-send' : 'mdi-check'"
+            :append-inner-icon="computedIcon"
             type="text"
             density="comfortable"
             label="Написать сообщение..."
@@ -87,6 +88,7 @@ const isFirstLoading = ref(false);
 const isAddLoading = ref(false);
 const isEditing = ref(false);
 const messageItem = ref<Message | MessageGroup | null>(null);
+const messageFieldRef = ref<HTMLInputElement | null>(null);
 
 const user = computed(() => userStore.getUser);
 
@@ -113,6 +115,14 @@ const isLoadingComputed = computed(() => {
   return false;
 });
 
+const computedIcon = computed(() => {
+  if (isEditing.value && !body.value.length) return "mdi-delete-outline";
+
+  if (isEditing.value) return "mdi-check";
+
+  return "mdi-send";
+});
+
 const recipientId = computed(() => {
   if (!currentDialog.value) return 0;
 
@@ -124,18 +134,18 @@ const recipientId = computed(() => {
   return giveRecipientId(conversation, user.value);
 });
 
+const editMessage = (settings: { message: Message | MessageGroup; isEditing: boolean }) => {
+  messageFieldRef.value?.focus();
+  messageItem.value = settings.message;
+  isEditing.value = settings.isEditing;
+  body.value = settings.message.body;
+};
+
 watch(
   () => currentDialog.value,
   newDialog => {
     if (!newDialog) return;
     loadingFirstMessages();
-  },
-);
-
-watch(
-  () => messageItem.value,
-  value => {
-    if (value) body.value = value.body;
   },
 );
 
@@ -163,19 +173,25 @@ const loadingFirstMessages = async () => {
   }
 };
 
-const sendMessage = () => {
-  if (!body.value) return;
+const resetTextField = () => {
+  isEditing.value = false;
+  body.value = "";
+  isAddLoading.value = false;
+};
 
+const sendMessage = () => {
   isAddLoading.value = true;
 
   if (isEditing.value) {
-    if (!messageItem.value) return;
+    if (!messageItem.value) return resetTextField();
 
-    if (body.value === messageItem.value.body) {
-      isEditing.value = false;
+    if (!body.value.length) {
       body.value = "";
-      isAddLoading.value = false;
-      return;
+      isEditing.value = false;
+
+      return dialogsStore.deleteMessage(messageItem.value.id).then(() => {
+        isAddLoading.value = false;
+      });
     }
 
     dialogsStore.editMessage(body.value, messageItem.value.id).then(() => {
@@ -185,6 +201,8 @@ const sendMessage = () => {
     body.value = "";
     return;
   }
+
+  if (!body.value) return;
 
   dialogsStore.storeMessage(body.value, recipientId.value).then(() => {
     isAddLoading.value = false;
