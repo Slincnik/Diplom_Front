@@ -5,7 +5,7 @@
       <v-card class="mr-2" @click.prevent="$router.push({ name: PAGES.MESSANGER })">
         <v-card-title>
           <v-icon icon="mdi-chat" />
-          Мессенджер
+          Корпоративный чат
         </v-card-title>
       </v-card>
       <v-card @click.prevent="$router.push({ name: PAGES.DASHBOARD })">
