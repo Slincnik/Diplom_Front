@@ -248,7 +248,7 @@ const sendMessage = () => {
     return;
   }
 
-  if (!body.value) return;
+  if (!body.value) return resetTextField();
 
   dialogsStore.storeMessage(body.value, recipientId.value, messageItem.value?.id).then(() => {
     isAddLoading.value = false;
