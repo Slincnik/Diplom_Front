@@ -296,6 +296,7 @@ onMounted(scrollToTop);
 }
 .onHover:hover {
   background-color: rgb(45, 45, 45);
+  color: white;
 }
 .onHover {
   cursor: pointer;
