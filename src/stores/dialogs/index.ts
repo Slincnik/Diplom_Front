@@ -1,5 +1,13 @@
 import { defineStore } from "pinia";
-import type { Conversation, Dialogs, Group, Message, MessageGroup } from "@/modules/messanger/types/index.types";
+import useUserStore from "@/stores/user";
+import type {
+  Conversation,
+  Dialogs,
+  Group,
+  Message,
+  MessageGroup,
+  DialogUser,
+} from "@/modules/messanger/types/index.types";
 import { api, type ApiResponse } from "@/plugins/axios";
 import { orderConversationsOrGroups } from "@/modules/messanger/utils/orderConversationsOrGroups";
 import queryString from "query-string";
@@ -111,7 +119,9 @@ const useDialogsStore = defineStore("dialogs", {
 
         conversation.isLoaded = true;
 
-        conversation.messages.unshift(...messages);
+        conversation.messages.push(...messages);
+
+        conversation.messages.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
 
         const hadCursor = this.cursors.find(({ id, type }) => id === this.currentDialogId && type === "conversations");
 
@@ -147,6 +157,8 @@ const useDialogsStore = defineStore("dialogs", {
         group.messages.unshift(...messages);
 
         group.isLoaded = true;
+
+        group.messages.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
 
         const hadCursor = this.cursors.find(({ id, type }) => id === this.currentDialogId && type === "groups");
 
@@ -226,6 +238,22 @@ const useDialogsStore = defineStore("dialogs", {
       }
     },
 
+    async inviteMembersToGroup(group_id: number, users: number[]) {
+      await api.post(`dialogs/groups/${group_id}/invite`, {
+        users,
+      });
+    },
+
+    async leaveFromGroup(group_id: number) {
+      const userStore = useUserStore();
+      const user = userStore.getUser!;
+
+      this.deleteMemberFromGroup(group_id, user.id);
+      this.deleteGroupFromList(group_id);
+
+      await api.post(`dialogs/groups/${group_id}/leave`);
+    },
+
     addMessageToConversation(conversation_id: number, message: Message) {
       const conversation = this.conversations.find(({ id }) => id === conversation_id);
 
@@ -255,17 +283,49 @@ const useDialogsStore = defineStore("dialogs", {
       this.conversations.unshift(conversation);
     },
 
-    addNewGroup(group: Group) {
-      group.isLoaded = true;
+    addNewGroup(group: Group, isLoaded: boolean = true) {
+      group.isLoaded = isLoaded;
+      if (group.lastMessage) {
+        group.messages.push(group.lastMessage);
+      }
       group.type = "group";
       this.groups.unshift(group);
+    },
+
+    addNewMembersToGroup(group_id: number, users: DialogUser[]) {
+      const findGroup = this.groups.find(({ id }) => id === group_id);
+
+      if (!findGroup) return;
+
+      findGroup.members.push(...users);
+    },
+
+    deleteMemberFromGroup(group_id: number, user_id: number) {
+      const findGroup = this.groups.find(({ id }) => id === group_id);
+
+      if (!findGroup) return;
+
+      findGroup.members.splice(
+        findGroup.members.findIndex(({ id }) => id === user_id),
+        1,
+      );
+    },
+
+    deleteGroupFromList(group_id: number) {
+      const findGroup = this.groups.find(({ id }) => id === group_id);
+
+      if (!findGroup) return;
+
+      this.groups.splice(
+        this.groups.findIndex(({ id }) => id === findGroup.id),
+        1,
+      );
     },
 
     readMessagesInConversation(conversation_id: number, user_id: number, timestamp: string) {
       const conversation = this.conversations.find(({ id }) => id === conversation_id);
 
       if (!conversation) return;
-
       conversation.messages.forEach(message => {
         if (message.sender.id === user_id) return;
 

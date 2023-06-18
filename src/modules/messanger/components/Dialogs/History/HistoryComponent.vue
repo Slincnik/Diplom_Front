@@ -33,6 +33,23 @@
           </span>
         </v-avatar>
       </template>
+      <template #append>
+        <template v-if="currentDialog?.type === 'group'">
+          <span class="mr-2">Участники: </span>
+          <v-btn
+            class="mr-n2"
+            variant="outlined"
+            color="blue"
+            max-width="35"
+            max-height="35"
+            icon="mdi-plus"
+            @click.prevent="isAddNewMember = true"
+          />
+          <v-avatar color="brown" class="mr-2" size="35" elevation="10">
+            <span class="text-h5">{{ currentDialog.members[0].name.charAt(0) }}</span>
+          </v-avatar>
+        </template>
+      </template>
     </v-toolbar>
     <div class="center">
       <div class="scroll-container d-flex flex-column align-center">
@@ -92,6 +109,7 @@
       </div>
     </div>
   </div>
+  <AddMemberToGroupVue v-if="currentDialog?.type === 'group'" v-model="isAddNewMember" :group="currentDialog" />
 </template>
 
 <script setup lang="ts">
@@ -102,8 +120,8 @@ import useUserStore from "@/stores/user";
 
 // Components & Types
 import MessagesComponent from "./MessagesComponent.vue";
+import AddMemberToGroupVue from "../../DialogContainer/AddMemberToGroup.vue";
 import type { Conversation, Message, MessageGroup } from "@/modules/messanger/types/index.types";
-
 import { renderChar, renderTitle, isFavorite, giveRecipientId } from "@/modules/messanger/utils/conversationFunctions";
 
 const dialogsStore = useDialogsStore();
@@ -117,6 +135,7 @@ const isEditing = ref(false);
 const isReply = ref(false);
 const messageItem = ref<Message | MessageGroup | null>(null);
 const messageFieldRef = ref<HTMLInputElement | null>(null);
+const isAddNewMember = ref(false);
 
 const user = computed(() => userStore.getUser);
 

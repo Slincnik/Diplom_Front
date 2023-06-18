@@ -1,9 +1,9 @@
 <template>
-  <div class="overflow-y-auto list">
-    <div v-if="!groups.length" class="d-flex fill-height justify-center align-center">
-      <span class="text-h6"> Создайте группу и начните общение </span>
-    </div>
-    <template v-else v-for="group in groups" :key="group.id">
+  <div v-if="!groups.length" class="d-flex fill-height justify-center align-center">
+    <span class="text-h6 text-center"> Создайте группу и начните общение </span>
+  </div>
+  <div v-else class="overflow-y-auto list">
+    <template v-for="group in groups" :key="group.id">
       <v-list-item
         @click.prevent="dialogsStore.setCurrentDialog(group.id)"
         :class="{
@@ -11,13 +11,16 @@
         }"
       >
         <v-list-item-title class="d-flex justify-start text-truncate"> {{ group.name }}</v-list-item-title>
-        <v-list-item-subtitle class="d-flex justify-start text-truncate">
+        <v-list-item-subtitle class="d-block justify-start text-truncate">
           {{ renderLastMessage(group) }}
         </v-list-item-subtitle>
         <template v-slot:prepend>
           <v-avatar size="large" color="brown">
             <span class="text-h5">{{ group.name.charAt(0) }}</span>
           </v-avatar>
+        </template>
+        <template v-slot:append>
+          <v-icon icon="mdi-door-open" class="onHoverLeave" @click.stop="leaveFromGroup(group.id)" />
         </template>
       </v-list-item>
       <v-divider />
@@ -39,6 +42,11 @@ const dialogsStore = useDialogsStore();
 const { user } = storeToRefs(userStore);
 const { currentDialogId, groups } = storeToRefs(dialogsStore);
 
+const leaveFromGroup = (group_id: number) => {
+  dialogsStore.setCurrentDialog(null);
+  dialogsStore.leaveFromGroup(group_id);
+};
+
 const renderLastMessage = (group: Group) => {
   if (!user.value) return "";
 
@@ -58,5 +66,9 @@ const renderLastMessage = (group: Group) => {
 .list {
   width: 100%;
   position: absolute;
+}
+
+.onHoverLeave:hover {
+  cursor: crosshair;
 }
 </style>

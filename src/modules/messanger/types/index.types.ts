@@ -1,6 +1,4 @@
-import type { IUser } from "@/stores/user/types";
-
-type DialogUser = {
+export type DialogUser = {
   id: number;
   name: string;
   lastname: string | null;
@@ -93,7 +91,7 @@ type AddGroupFromCentrifugo = {
 
 type AddedToGroupFromCentrifugo = {
   type: "ADDED_TO_GROUP";
-  users: IUser[];
+  users: DialogUser[];
   group: Group;
 };
 

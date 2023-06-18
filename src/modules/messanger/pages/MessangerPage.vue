@@ -54,7 +54,8 @@ import newMessageSound from "@/assets/sounds/newMessage.mp3";
 import Sidebar from "../components/Dialogs/SidebarComponent.vue";
 import HistoryComponent from "../components/Dialogs/History/HistoryComponent.vue";
 import { isFavorite, renderTitle } from "../utils/conversationFunctions";
-import type { MessagesFromCentrifugo } from "../types/index.types";
+import type { Conversation, Group, MessagesFromCentrifugo } from "../types/index.types";
+import type { ToastContent } from "vue-toastification/dist/types/types";
 
 const dialogsStore = useDialogsStore();
 const userStore = useUserStore();
@@ -110,18 +111,27 @@ onMounted(async () => {
     }
   };
 
-  // const sendSoundAndToastNotify = <T extends MessagesFromCentrifugo>(
-  //   type: "conversation" | "group",
-  //   dialog?: Conversation | Group,
-  // ) => {
-  //   play();
-  //   const title = renderTitle(dialog, user.value);
-  //   toast.info(`${title}: ${truncateText(data, 7)}`, {
-  //     position: POSITION.TOP_RIGHT,
-  //     timeout: 10000,
-  //     pauseOnFocusLoss: true,
-  //   });
-  // };
+  const sendSoundAndToastNotify = (dialog: Conversation | Group, data: ToastContent) => {
+    play();
+
+    if (dialog.type === "conversation") {
+      toast.info(data, {
+        position: POSITION.TOP_RIGHT,
+        timeout: 10000,
+        pauseOnFocusLoss: true,
+      });
+      return;
+    }
+
+    if (dialog.type === "group") {
+      toast.info(data, {
+        position: POSITION.TOP_RIGHT,
+        timeout: 10000,
+        pauseOnFocusLoss: true,
+      });
+      return;
+    }
+  };
 
   centra.channelSubscription.on("publication", ({ data }: { data: MessagesFromCentrifugo }) => {
     switch (data.type) {
@@ -136,13 +146,9 @@ onMounted(async () => {
 
           if (isFavoriteValue) return;
 
-          play();
           const title = renderTitle(conversation, user.value);
-          toast.info(`${title}: ${truncateText(data.message.body, 7)}`, {
-            position: POSITION.TOP_RIGHT,
-            timeout: 10000,
-            pauseOnFocusLoss: true,
-          });
+
+          sendSoundAndToastNotify(conversation, `${title}: ${truncateText(data.message.body, 7)}`);
         }
         break;
 
@@ -153,15 +159,10 @@ onMounted(async () => {
 
           if (!group) return;
 
-          toast.info(
+          sendSoundAndToastNotify(
+            group,
             `${group.name.substring(0, 4)}_${data.message.sender.name}: ${truncateText(data.message.body, 5)}`,
-            {
-              position: POSITION.TOP_RIGHT,
-              timeout: 10000,
-              pauseOnFocusLoss: true,
-            },
           );
-          play();
         }
         break;
 
@@ -170,28 +171,20 @@ onMounted(async () => {
 
         if (isFavorite(data.conversation, user.value)) return;
 
-        toast.info(
+        if (data.conversation.lastMessage?.sender.id === user.value?.id) return;
+
+        sendSoundAndToastNotify(
+          data.conversation,
           `${renderTitle(data.conversation, user.value)}: ${truncateText(
             data.conversation.lastMessage?.body || "",
             7,
           )}`,
-          {
-            position: POSITION.TOP_RIGHT,
-            timeout: 10000,
-            pauseOnFocusLoss: true,
-          },
         );
-        play();
         break;
 
       case "ADD_GROUP":
         dialogsStore.addNewGroup(data.group);
-        toast.info(`Вы были добавлены в группу: ${data.group.name}`, {
-          position: POSITION.TOP_RIGHT,
-          timeout: 10000,
-          pauseOnFocusLoss: true,
-        });
-        play();
+        sendSoundAndToastNotify(data.group, `Вы были добавлены в группу: ${data.group.name}`);
         break;
 
       case "READ_MESSAGES":
@@ -222,6 +215,20 @@ onMounted(async () => {
           dialogId: data.group_id,
           messageId: data.message.id,
         });
+        break;
+
+      case "ADDED_TO_GROUP":
+        dialogsStore.addNewMembersToGroup(data.group.id, data.users);
+
+        if (data.users.find(({ id }) => id !== user.value?.id)) return;
+
+        dialogsStore.addNewGroup(data.group, false);
+
+        sendSoundAndToastNotify(data.group, `Вы были добавлены в группу ${data.group.name}`);
+        break;
+
+      case "DELETE_FROM_GROUP":
+        dialogsStore.deleteMemberFromGroup(data.group_id, data.user);
         break;
 
       default:
