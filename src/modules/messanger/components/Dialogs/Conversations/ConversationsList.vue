@@ -1,13 +1,11 @@
 <template>
-  <div class="overflow-y-auto list">
-    <div v-if="!conversations.length" class="d-flex fill-height justify-center align-center">
-      <span class="text-h6 text-center"> Самое время написать кому-нибудь </span>
-    </div>
-    <template v-else>
+  <div v-if="!conversations.length" class="d-flex fill-height justify-center align-center">
+    <span class="text-h6 text-center"> Самое время написать кому-нибудь </span>
+  </div>
+  <div v-else class="overflow-y-auto list">
+    <template v-for="conversation in conversations" :key="conversation.id">
       <v-list-item
-        v-for="conversation in conversations"
-        :key="conversation.id"
-        @click.stop="dialogsStore.setCurrentDialog(conversation.id)"
+        @click.prevent="dialogsStore.setCurrentDialog(conversation.id)"
         :class="{
           'v-list-item--active': conversation.id == currentDialogId,
         }"
