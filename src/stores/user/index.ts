@@ -50,7 +50,6 @@ const useUserStore = defineStore("user", {
 
       dialogsStore.$reset();
       dashboardStore.$reset();
-      centra.onlineSubscription?.removeAllListeners();
       centra.channelSubscription?.removeAllListeners();
     },
   },

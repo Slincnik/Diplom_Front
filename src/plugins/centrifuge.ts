@@ -17,13 +17,9 @@ const options = {
   isLoaded: false,
   instance: centrifuge,
   channelSubscription: null as Subscription | null,
-  onlineSubscription: null as Subscription | null,
   connect: (id: number) => {
     options.channelSubscription = centrifuge.newSubscription(`user#${id}`);
     options.channelSubscription.subscribe();
-
-    options.onlineSubscription = centrifuge.newSubscription("online");
-    options.onlineSubscription.subscribe();
 
     centrifuge.connect();
 
