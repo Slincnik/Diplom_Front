@@ -18,7 +18,6 @@ export type Card = {
 
 export type AddCard = {
   content: string;
-  position: number;
   columnId: number;
 };
 

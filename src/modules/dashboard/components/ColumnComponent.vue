@@ -103,7 +103,6 @@ const addCard = async (content: string) => {
 
   await dashboardStore.addCard({
     content,
-    position: 2,
     columnId: props.column.id,
   });
 };

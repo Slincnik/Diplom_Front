@@ -49,7 +49,6 @@ const useDashboardStore = defineStore("dashboard", {
     async addCard(settings: AddCard) {
       const response = await api.post<ApiResponse, Card>(`board/column/${settings.columnId}/card`, {
         content: settings.content,
-        position: settings.position,
       });
 
       const column = this.board?.columns.find(({ id }) => id === settings.columnId);
