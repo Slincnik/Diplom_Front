@@ -28,6 +28,9 @@ const router = createRouter({
       path: "/:pathMatch(.*)*",
       name: PAGES.NOTFOUND,
       component: () => import("@/components/NotFound.vue"),
+      meta: {
+        guest: true,
+      },
     },
 
     ...authRoutes,
