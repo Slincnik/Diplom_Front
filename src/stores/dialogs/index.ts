@@ -99,8 +99,13 @@ const useDialogsStore = defineStore("dialogs", {
       });
     },
 
-    async loadingMessages(type: "conversation" | "group", newCursor?: Cursor) {
+    async loadingMessages(
+      type: "conversation" | "group",
+      newCursor?: Cursor,
+      currentMessages: Message[] | MessageGroup[] = [],
+    ) {
       if (type === "conversation") {
+        console.log([currentMessages.map(msg => msg["id"])]);
         const { messages, cursor } = await api.get<
           ApiResponse,
           {
@@ -111,6 +116,11 @@ const useDialogsStore = defineStore("dialogs", {
           `dialogs/conversation/${this.currentDialogId}/messages?${queryString.stringify({
             cursor: newCursor?.cursor,
           })}`,
+          {
+            params: {
+              messages: currentMessages.map(msg => msg["id"]),
+            },
+          },
         );
 
         const conversation = this.conversations.find(({ id }) => id === this.currentDialogId);
@@ -148,6 +158,11 @@ const useDialogsStore = defineStore("dialogs", {
           `dialogs/groups/${this.currentDialogId}/messages?${queryString.stringify({
             cursor: newCursor?.cursor,
           })}`,
+          {
+            params: {
+              messages: currentMessages.map(msg => msg["id"]),
+            },
+          },
         );
 
         const group = this.groups.find(({ id }) => id === this.currentDialogId);

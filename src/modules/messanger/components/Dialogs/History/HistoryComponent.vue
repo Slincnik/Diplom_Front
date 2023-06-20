@@ -228,7 +228,7 @@ const loadingFirstMessages = async () => {
 
   if (!isLoadedMessages) {
     isFirstLoading.value = true;
-    await dialogsStore.loadingMessages(currentDialog.value.type);
+    await dialogsStore.loadingMessages(currentDialog.value.type, undefined, currentDialog.value.messages);
     isFirstLoading.value = false;
   }
 };
