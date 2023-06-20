@@ -1,6 +1,9 @@
 import { defineStore } from "pinia";
 import { api, type ApiResponse } from "@/plugins/axios";
 import type { IUser, LoginResponse, RegisterResponse, loginParams, registerParams } from "./types";
+import useDialogsStore from "../dialogs";
+import useDashboardStore from "../dashboard";
+import centra from "@/plugins/centrifuge";
 
 const useUserStore = defineStore("user", {
   state: () => ({
@@ -42,6 +45,13 @@ const useUserStore = defineStore("user", {
 
     async logout() {
       this.setBearerToken();
+      const dialogsStore = useDialogsStore();
+      const dashboardStore = useDashboardStore();
+
+      dialogsStore.$reset();
+      dashboardStore.$reset();
+      centra.onlineSubscription?.removeAllListeners();
+      centra.channelSubscription?.removeAllListeners();
     },
   },
 });
