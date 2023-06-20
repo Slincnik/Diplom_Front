@@ -1,5 +1,9 @@
 import { defineStore } from "pinia";
+import queryString from "query-string";
 import useUserStore from "@/stores/user";
+import { api, type ApiResponse } from "@/plugins/axios";
+import { orderConversationsOrGroups } from "@/modules/messanger/utils/orderConversationsOrGroups";
+import { sortMessagesByDate } from "@/utils/sortMessagesByDate";
 import type {
   Conversation,
   Dialogs,
@@ -8,9 +12,6 @@ import type {
   MessageGroup,
   DialogUser,
 } from "@/modules/messanger/types/index.types";
-import { api, type ApiResponse } from "@/plugins/axios";
-import { orderConversationsOrGroups } from "@/modules/messanger/utils/orderConversationsOrGroups";
-import queryString from "query-string";
 import type { IUser } from "../user/types";
 
 type Cursor = {
@@ -70,26 +71,22 @@ const useDialogsStore = defineStore("dialogs", {
     },
 
     async fetchDialogs() {
-      const response = await api.get<ApiResponse, Dialogs>("dialogs");
-      this.conversations = orderConversationsOrGroups(response.conversations) as Conversation[];
+      const { conversations, groups } = await api.get<ApiResponse, Dialogs>("dialogs");
+      this.conversations = orderConversationsOrGroups(conversations) as Conversation[];
       this.conversations.forEach(conversation => {
-        if (conversation.lastMessage) {
-          conversation.messages.push(conversation.lastMessage);
-        }
+        conversation.lastMessage && conversation.messages.push(conversation.lastMessage);
         conversation.isLoaded = false;
         conversation.type = "conversation";
       });
 
-      this.groups = orderConversationsOrGroups(response.groups) as Group[];
+      this.groups = orderConversationsOrGroups(groups) as Group[];
       this.groups.forEach(group => {
-        if (group.lastMessage) {
-          group.messages.push(group.lastMessage);
-        }
+        group.lastMessage && group.messages.push(group.lastMessage);
         group.isLoaded = false;
         group.type = "group";
       });
 
-      return response;
+      return { conversations, groups };
     },
 
     async createGroup(groupName: string, usersId: number[] = []) {
@@ -105,89 +102,66 @@ const useDialogsStore = defineStore("dialogs", {
       currentMessages: Message[] | MessageGroup[] = [],
     ) {
       if (type === "conversation") {
-        console.log([currentMessages.map(msg => msg["id"])]);
-        const { messages, cursor } = await api.get<
-          ApiResponse,
-          {
-            messages: Message[];
-            cursor: string | null;
-          }
-        >(
-          `dialogs/conversation/${this.currentDialogId}/messages?${queryString.stringify({
-            cursor: newCursor?.cursor,
-          })}`,
-          {
-            params: {
-              messages: currentMessages.map(msg => msg["id"]),
-            },
-          },
-        );
+        const { messages, cursor } = await this.fetchMessages("conversation", currentMessages, newCursor);
 
         const conversation = this.conversations.find(({ id }) => id === this.currentDialogId);
 
         if (!conversation) return;
 
+        const sortedMessages = sortMessagesByDate([...conversation.messages, ...messages]) as Message[];
+
         conversation.isLoaded = true;
 
-        conversation.messages.push(...messages);
+        conversation.messages = sortedMessages;
 
-        conversation.messages.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
-
-        const hadCursor = this.cursors.find(({ id, type }) => id === this.currentDialogId && type === "conversations");
-
-        if (hadCursor) {
-          hadCursor.cursor = cursor;
-          return;
-        }
-
-        this.cursors.push({
-          id: this.currentDialogId!,
-          type: "conversations",
-          cursor,
-        });
+        this.updateCursor("conversations", cursor);
       }
 
       if (type === "group") {
-        const { messages, cursor } = await api.get<
-          ApiResponse,
-          {
-            messages: Message[];
-            cursor: string | null;
-          }
-        >(
-          `dialogs/groups/${this.currentDialogId}/messages?${queryString.stringify({
-            cursor: newCursor?.cursor,
-          })}`,
-          {
-            params: {
-              messages: currentMessages.map(msg => msg["id"]),
-            },
-          },
-        );
+        const { messages, cursor } = await this.fetchMessages("group", currentMessages, newCursor);
 
         const group = this.groups.find(({ id }) => id === this.currentDialogId);
 
         if (!group) return;
 
-        group.messages.unshift(...messages);
+        const sortedMessages = sortMessagesByDate([...group.messages, ...messages]) as Message[];
 
         group.isLoaded = true;
 
-        group.messages.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+        group.messages = sortedMessages;
 
-        const hadCursor = this.cursors.find(({ id, type }) => id === this.currentDialogId && type === "groups");
-
-        if (hadCursor) {
-          hadCursor.cursor = cursor;
-          return;
-        }
-
-        this.cursors.push({
-          id: this.currentDialogId!,
-          type: "groups",
-          cursor,
-        });
+        this.updateCursor("groups", cursor);
       }
+    },
+
+    async fetchMessages(
+      type: "conversation" | "group",
+      currentMessages: Message[] | MessageGroup[],
+      newCursor?: Cursor,
+    ) {
+      const endpoint =
+        type === "conversation"
+          ? `dialogs/conversation/${this.currentDialogId}/messages`
+          : `dialogs/groups/${this.currentDialogId}/messages`;
+
+      const { messages, cursor } = await api.get<
+        ApiResponse,
+        {
+          messages: Message[];
+          cursor: string | null;
+        }
+      >(
+        `${endpoint}?${queryString.stringify({
+          cursor: newCursor?.cursor,
+        })}`,
+        {
+          params: {
+            messages: currentMessages.map(msg => msg["id"]),
+          },
+        },
+      );
+
+      return { messages, cursor };
     },
 
     async getUsers() {
@@ -202,55 +176,41 @@ const useDialogsStore = defineStore("dialogs", {
     },
 
     async storeMessage(body: string, userId?: number, reference_id?: number) {
-      if (this.tab === "conversations") {
-        await api.post<ApiResponse>(`dialogs/conversation/${userId}`, {
-          body,
-          reference_id,
-        });
-      }
+      const endpoint =
+        this.tab === "conversations" ? `dialogs/conversation/${userId}` : `dialogs/groups/${this.currentDialogId}`;
 
-      if (this.tab === "groups") {
-        await api.post(`dialogs/groups/${this.currentDialogId}`, {
-          body,
-          reference_id,
-        });
-      }
+      await api.post<ApiResponse>(endpoint, {
+        body,
+        reference_id,
+      });
     },
 
     async deleteMessage(messageId: number) {
       this.deleteMessageInDialog(messageId);
 
-      if (this.tab === "conversations") {
-        await api.delete(`dialogs/conversation/${this.currentDialogId}/messages`, {
-          data: {
-            messages: [messageId],
-          },
-        });
-      }
+      const endpoint =
+        this.tab === "conversations"
+          ? `dialogs/conversation/${this.currentDialogId}/messages`
+          : `dialogs/groups/${this.currentDialogId}/messages`;
 
-      if (this.tab === "groups") {
-        await api.delete(`dialogs/groups/${this.currentDialogId}/messages`, {
-          data: {
-            messages: [messageId],
-          },
-        });
-      }
+      await api.delete(endpoint, {
+        data: {
+          messages: [messageId],
+        },
+      });
     },
 
     async editMessage(newMessage: string, messageId: number) {
       this.editMessageInDialog({ type: this.tab, messageId, dialogId: this.currentDialogId!, newMessage });
 
-      if (this.tab === "conversations") {
-        await api.put(`dialogs/conversation/${this.currentDialogId}/messages/${messageId}`, {
-          message: newMessage,
-        });
-      }
+      const endpoint =
+        this.tab === "conversations"
+          ? `dialogs/conversation/${this.currentDialogId}/messages/${messageId}`
+          : `dialogs/groups/${this.currentDialogId}/messages/${messageId}`;
 
-      if (this.tab === "groups") {
-        await api.put(`dialogs/groups/${this.currentDialogId}/messages/${messageId}`, {
-          message: newMessage,
-        });
-      }
+      await api.put(endpoint, {
+        message: newMessage,
+      });
     },
 
     async inviteMembersToGroup(group_id: number, users: number[]) {
@@ -394,6 +354,21 @@ const useDialogsStore = defineStore("dialogs", {
         message.body = settings.newMessage;
         message.updated_at = new Date().toUTCString();
       }
+    },
+
+    updateCursor(type: "conversations" | "groups", cursor: string | null) {
+      const hadCursor = this.cursors.find(item => item.id === this.currentDialogId && item.type === type);
+
+      if (hadCursor) {
+        hadCursor.cursor = cursor;
+        return;
+      }
+
+      this.cursors.push({
+        id: this.currentDialogId!,
+        type: "conversations",
+        cursor,
+      });
     },
   },
 });
