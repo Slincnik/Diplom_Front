@@ -8,6 +8,7 @@ export const authRoutes: readonly RouteRecordRaw[] = [
     name: PAGES.LOGIN,
     component: () => import("@/modules/auth/pages/LoginPage.vue"),
     meta: {
+      title: "Авторизация",
       guest: true,
     },
   },
@@ -16,6 +17,7 @@ export const authRoutes: readonly RouteRecordRaw[] = [
     name: PAGES.REGISTRATION,
     component: () => import("@/modules/auth/pages/RegisterPage.vue"),
     meta: {
+      title: "Регистрация",
       guest: true,
     },
   },

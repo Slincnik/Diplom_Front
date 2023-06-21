@@ -5,7 +5,8 @@ declare module "vue-router" {
   interface RouteMeta {
     layout?: AppLayoutsEnum;
     layoutComponent?: VueElement;
-    guest: boolean | null;
+    guest?: boolean | null;
+    title?: string;
   }
 }
 

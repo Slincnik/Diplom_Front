@@ -11,17 +11,26 @@ const router = createRouter({
       path: "/",
       name: PAGES.HOME,
       component: () => import("@/modules/home/pages/HomePage.vue"),
+      meta: {
+        title: "Home",
+      },
     },
 
     {
       path: "/messanger",
       name: PAGES.MESSANGER,
       component: () => import("@/modules/messanger/pages/MessangerPage.vue"),
+      meta: {
+        title: "Мессенджер",
+      },
     },
     {
       path: "/dashboard",
       name: PAGES.DASHBOARD,
       component: () => import("@/modules/dashboard/pages/DashboardPage.vue"),
+      meta: {
+        title: "Канбан доска",
+      },
     },
 
     {
@@ -30,6 +39,7 @@ const router = createRouter({
       component: () => import("@/components/NotFound.vue"),
       meta: {
         guest: true,
+        title: "Not Found Page",
       },
     },
 
