@@ -94,7 +94,7 @@ const sendMessage = async () => {
 
   isStoreLoading.value = true;
 
-  await dialogsStore.storeMessage(message.value, user.value);
+  await dialogsStore.storeMessage(message.value, "conversation", user.value);
 
   isStoreLoading.value = false;
   closeModal();

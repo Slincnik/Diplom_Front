@@ -269,9 +269,16 @@ const sendMessage = () => {
 
   if (!body.value) return resetTextField();
 
-  dialogsStore.storeMessage(body.value, recipientId.value, messageItem.value?.id).then(() => {
-    isAddLoading.value = false;
-  });
+  dialogsStore
+    .storeMessage(
+      body.value,
+      currentDialog.value?.type as "conversation" | "group",
+      recipientId.value,
+      messageItem.value?.id,
+    )
+    .then(() => {
+      isAddLoading.value = false;
+    });
   messageItem.value = null;
   isReply.value = false;
   body.value = "";

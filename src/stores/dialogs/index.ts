@@ -175,9 +175,9 @@ const useDialogsStore = defineStore("dialogs", {
       return users;
     },
 
-    async storeMessage(body: string, userId?: number, reference_id?: number) {
+    async storeMessage(body: string, tab: "conversation" | "group", userId?: number, reference_id?: number) {
       const endpoint =
-        this.tab === "conversations" ? `dialogs/conversation/${userId}` : `dialogs/groups/${this.currentDialogId}`;
+        tab === "conversation" ? `dialogs/conversation/${userId}` : `dialogs/groups/${this.currentDialogId}`;
 
       await api.post<ApiResponse>(endpoint, {
         body,
