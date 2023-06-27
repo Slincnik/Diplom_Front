@@ -244,5 +244,6 @@ onMounted(async () => {
 onUnmounted(() => {
   window.removeEventListener("keyup", listener);
   centra.channelSubscription?.removeAllListeners();
+  dialogsStore.setCurrentDialog(null);
 });
 </script>
