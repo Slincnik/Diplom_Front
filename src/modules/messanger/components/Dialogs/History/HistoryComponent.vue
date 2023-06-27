@@ -7,6 +7,7 @@
       <template v-slot:prepend>
         <v-btn
           @click.prevent="dialogsStore.setCurrentDialog(null)"
+          @touchend="dialogsStore.setCurrentDialog(null)"
           icon="mdi-keyboard-backspace"
           class="mr-2 d-block d-sm-block d-md-none"
         />
