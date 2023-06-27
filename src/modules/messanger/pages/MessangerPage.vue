@@ -56,7 +56,6 @@ import HistoryComponent from "../components/Dialogs/History/HistoryComponent.vue
 import { isFavorite, renderTitle } from "../utils/conversationFunctions";
 import type { Conversation, Group, MessagesFromCentrifugo } from "../types/index.types";
 import type { ToastContent } from "vue-toastification/dist/types/types";
-import type { BufferSource } from "stream/web";
 
 const dialogsStore = useDialogsStore();
 const userStore = useUserStore();
@@ -134,13 +133,12 @@ onMounted(async () => {
     }
   };
 
-  centra.channelSubscription.on("publication", ({ data }: { data: BufferSource }) => {
-    const decodeData = JSON.parse(new TextDecoder("utf-8").decode(data)) as MessagesFromCentrifugo;
-    switch (decodeData.type) {
+  centra.channelSubscription.on("publication", ({ data }: { data: MessagesFromCentrifugo }) => {
+    switch (data.type) {
       case "NEW_MESSAGE":
-        dialogsStore.addMessageToConversation(decodeData.conversation_id, decodeData.message);
-        if (currentDialogId.value !== decodeData.conversation_id) {
-          const conversation = dialogsStore.getOptionalConversation(decodeData.conversation_id);
+        dialogsStore.addMessageToConversation(data.conversation_id, data.message);
+        if (currentDialogId.value !== data.conversation_id) {
+          const conversation = dialogsStore.getOptionalConversation(data.conversation_id);
 
           if (!conversation) return;
 
@@ -150,90 +148,87 @@ onMounted(async () => {
 
           const title = renderTitle(conversation, user.value);
 
-          sendSoundAndToastNotify(conversation, `${title}: ${truncateText(decodeData.message.body, 7)}`);
+          sendSoundAndToastNotify(conversation, `${title}: ${truncateText(data.message.body, 7)}`);
         }
         break;
 
       case "NEW_MESSAGE_GROUP":
-        dialogsStore.addMessageToGroup(decodeData.group_id, decodeData.message);
-        if (currentDialogId.value !== decodeData.group_id) {
-          const group = dialogsStore.getOptionalGroup(decodeData.group_id);
+        dialogsStore.addMessageToGroup(data.group_id, data.message);
+        if (currentDialogId.value !== data.group_id) {
+          const group = dialogsStore.getOptionalGroup(data.group_id);
 
           if (!group) return;
 
           sendSoundAndToastNotify(
             group,
-            `${group.name.substring(0, 4)}_${decodeData.message.sender.name}: ${truncateText(
-              decodeData.message.body,
-              5,
-            )}`,
+            `${group.name.substring(0, 4)}_${data.message.sender.name}: ${truncateText(data.message.body, 5)}`,
           );
         }
         break;
 
       case "ADD_CONVERSATION":
-        dialogsStore.addNewConversation(decodeData.conversation);
+        dialogsStore.addNewConversation(data.conversation);
 
-        if (isFavorite(decodeData.conversation, user.value)) return;
+        if (isFavorite(data.conversation, user.value)) return;
 
-        if (decodeData.conversation.lastMessage?.sender.id === user.value?.id) return;
+        if (data.conversation.lastMessage?.sender.id === user.value?.id) return;
 
         sendSoundAndToastNotify(
-          decodeData.conversation,
-          `${renderTitle(decodeData.conversation, user.value)}: ${truncateText(
-            decodeData.conversation.lastMessage?.body || "",
+          data.conversation,
+          `${renderTitle(data.conversation, user.value)}: ${truncateText(
+            data.conversation.lastMessage?.body || "",
             7,
           )}`,
         );
         break;
 
       case "ADD_GROUP":
-        dialogsStore.addNewGroup(decodeData.group);
-        sendSoundAndToastNotify(decodeData.group, `Вы были добавлены в группу: ${decodeData.group.name}`);
+        dialogsStore.addNewGroup(data.group);
+        sendSoundAndToastNotify(data.group, `Вы были добавлены в группу: ${data.group.name}`);
         break;
 
       case "READ_MESSAGES":
-        dialogsStore.readMessagesInConversation(decodeData.conversation_id, decodeData.user_id, decodeData.timestamp);
+        dialogsStore.readMessagesInConversation(data.conversation_id, data.user_id, data.timestamp);
         break;
 
       case "DELETE_MESSAGES":
-        dialogsStore.deleteMessageInDialog(decodeData.messages[0]);
+        dialogsStore.deleteMessageInDialog(data.messages[0]);
         break;
 
       case "DELETE_MESSAGE_GROUP":
-        dialogsStore.deleteMessageInDialog(decodeData.messages[0]);
+        dialogsStore.deleteMessageInDialog(data.messages[0]);
         break;
 
       case "EDIT_MESSAGE":
         dialogsStore.editMessageInDialog({
           type: "conversations",
-          newMessage: decodeData.message.body,
-          dialogId: decodeData.conversation_id,
-          messageId: decodeData.message.id,
+          newMessage: data.message.body,
+          dialogId: data.conversation_id,
+          messageId: data.message.id,
         });
         break;
 
       case "EDIT_MESSAGE_GROUP":
         dialogsStore.editMessageInDialog({
           type: "groups",
-          newMessage: decodeData.message.body,
-          dialogId: decodeData.group_id,
-          messageId: decodeData.message.id,
+          newMessage: data.message.body,
+          dialogId: data.group_id,
+          messageId: data.message.id,
         });
         break;
 
       case "ADDED_TO_GROUP":
-        dialogsStore.addNewMembersToGroup(decodeData.group.id, decodeData.users);
+        dialogsStore.addNewMembersToGroup(data.group.id, data.users);
 
-        if (decodeData.users.find(({ id }) => id !== user.value?.id)) return;
+        if (data.users.find(({ id }) => id !== user.value?.id)) return;
 
-        dialogsStore.addNewGroup(decodeData.group, false);
+        dialogsStore.addNewGroup(data.group, false);
 
-        sendSoundAndToastNotify(decodeData.group, `Вы были добавлены в группу ${decodeData.group.name}`);
+        sendSoundAndToastNotify(data.group, `Вы были добавлены в группу ${data.group.name}`);
         break;
 
       case "DELETE_FROM_GROUP":
-        dialogsStore.deleteMemberFromGroup(decodeData.group_id, decodeData.user);
+        dialogsStore.deleteMemberFromGroup(data.group_id, data.user);
         break;
 
       default:

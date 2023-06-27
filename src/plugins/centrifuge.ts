@@ -1,10 +1,9 @@
-import Centrifuge from "centrifuge/build/protobuf";
+import { Centrifuge } from "centrifuge";
 import useUserStore from "@/stores/user";
 import type { Subscription } from "centrifuge";
 
 const centrifuge = new Centrifuge(import.meta.env.VITE_CENTRA_URL, {
   name: "diplom",
-  protocol: "protobuf",
   websocket: WebSocket,
   getToken() {
     const userStore = useUserStore();
@@ -20,7 +19,7 @@ const options = {
   channelSubscription: null as Subscription | null,
   connect: (id: number) => {
     options.channelSubscription = centrifuge.newSubscription(`user#${id}`);
-    options.channelSubscription.subscribe();
+    options.channelSubscription?.subscribe();
 
     centrifuge.connect();
 
