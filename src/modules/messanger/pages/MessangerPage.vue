@@ -92,6 +92,36 @@ const listener = (event: KeyboardEvent) => {
   }
 };
 
+const sendSoundAndToastNotify = (dialog: Conversation | Group, data: ToastContent) => {
+  play();
+
+  if (dialog.type === "conversation") {
+    toast.info(data, {
+      position: POSITION.TOP_RIGHT,
+      timeout: 10000,
+      pauseOnFocusLoss: true,
+    });
+    return;
+  }
+
+  if (dialog.type === "group") {
+    toast.info(data, {
+      position: POSITION.TOP_RIGHT,
+      timeout: 10000,
+      pauseOnFocusLoss: true,
+    });
+    return;
+  }
+};
+
+const truncateText = (body: string, num: number) => {
+  if (body.length > num) {
+    return body.substring(0, num) + "...";
+  } else {
+    return body;
+  }
+};
+
 onMounted(async () => {
   if (!centra.channelSubscription) return;
 
@@ -103,35 +133,7 @@ onMounted(async () => {
     tab.value = route.query.tab as "conversations" | "groups";
   }
 
-  const truncateText = (body: string, num: number) => {
-    if (body.length > num) {
-      return body.substring(0, num) + "...";
-    } else {
-      return body;
-    }
-  };
-
-  const sendSoundAndToastNotify = (dialog: Conversation | Group, data: ToastContent) => {
-    play();
-
-    if (dialog.type === "conversation") {
-      toast.info(data, {
-        position: POSITION.TOP_RIGHT,
-        timeout: 10000,
-        pauseOnFocusLoss: true,
-      });
-      return;
-    }
-
-    if (dialog.type === "group") {
-      toast.info(data, {
-        position: POSITION.TOP_RIGHT,
-        timeout: 10000,
-        pauseOnFocusLoss: true,
-      });
-      return;
-    }
-  };
+  centra.channelSubscription.subscribe();
 
   centra.channelSubscription.on("publication", ({ data }: { data: MessagesFromCentrifugo }) => {
     switch (data.type) {
@@ -241,5 +243,6 @@ onMounted(async () => {
 
 onUnmounted(() => {
   window.removeEventListener("keyup", listener);
+  centra.channelSubscription?.removeAllListeners();
 });
 </script>

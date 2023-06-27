@@ -19,7 +19,6 @@ const options = {
   channelSubscription: null as Subscription | null,
   connect: (id: number) => {
     options.channelSubscription = centrifuge.newSubscription(`user#${id}`);
-    options.channelSubscription?.subscribe();
 
     centrifuge.connect();
 
