@@ -33,7 +33,16 @@
         @end="onReorderEnds"
       >
         <template #item="{ element }: { element: Card }">
-          <CardComponent class="cursor-grable" :key="element.id" @delete-click="removeCard" :card="element" />
+          <CardComponent
+            class="cursor-grable"
+            @dblclick="openCardDialog(element)"
+            :key="element.id"
+            @delete-click="removeCard"
+            :card="element"
+            :isEditing="isCardEditing"
+            :column-id="column.id"
+            @updateEditing="isCardEditing = !isCardEditing"
+          />
         </template>
       </draggableComponent>
       <v-divider />
@@ -71,7 +80,9 @@ const dashboardStore = useDashboardStore();
 
 const showAddCardDialog = ref(false);
 const isEditing = ref(false);
+const isCardEditing = ref(false);
 const cards = ref(props.column.cards);
+const selectedCard = ref<Card | null>(null);
 
 const columnTitle = computed({
   get() {
@@ -135,6 +146,11 @@ const removeCard = async (newCard: Card) => {
   });
 };
 
+const openCardDialog = (card: Card) => {
+  isCardEditing.value = true;
+  selectedCard.value = card;
+};
+
 const onReorderCards = () => {
   const cloned = cloneDeep(cards.value);
 
@@ -157,8 +173,13 @@ const onReorderEnds = () => {
 
 const listener = (e: KeyboardEvent) => {
   if (e.key === "Escape") {
-    if (!isEditing.value) return;
-    isEditing.value = false;
+    if (isEditing.value) {
+      isEditing.value = false;
+    }
+
+    if (isCardEditing.value) {
+      isCardEditing.value = false;
+    }
   }
 };
 

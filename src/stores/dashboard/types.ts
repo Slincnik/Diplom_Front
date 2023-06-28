@@ -14,6 +14,7 @@ export type Card = {
   id: number;
   content: string;
   position: number;
+  updated_at: string;
 };
 
 export type AddCard = {
