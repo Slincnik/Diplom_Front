@@ -128,6 +128,9 @@ const editColumn = async () => {
 const removeColumn = async (columnId: number) => {
   if (!props.board) return;
 
+  isEditing.value = false;
+  isCardEditing.value = false;
+
   await dashboardStore.removeColumn(columnId);
 };
 
