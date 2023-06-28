@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { api, type ApiResponse } from "@/plugins/axios";
-import type { AddCard, Board, Card, Column, RemoveCard } from "./types";
+import type { AddCard, Board, Card, Column, OrderedCardsInColumns, RemoveCard } from "./types";
 
 interface State {
   board: Board | null;
@@ -84,9 +84,18 @@ const useDashboardStore = defineStore("dashboard", {
 
       await api.delete(`board/column/${settings.columnId}/card/${settings.cardId}`);
     },
-    async reorderCards(cards: unknown[]) {
+    async reorderCards(orderCards: OrderedCardsInColumns[]) {
+      orderCards.forEach(({ cards, id }) => {
+        cards.forEach(() => {
+          const findedColumn = this.board?.columns.find(column => column.id === id);
+
+          if (!findedColumn) return;
+
+          findedColumn.cards.forEach(card => (card.updated_at = new Date().toUTCString()));
+        });
+      });
       api.put("board/cards/reorder", {
-        columns: cards,
+        columns: orderCards,
       });
     },
   },
