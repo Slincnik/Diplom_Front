@@ -20,6 +20,8 @@ const options = {
   connect: (id: number) => {
     options.channelSubscription = centrifuge.newSubscription(`user#${id}`);
 
+    options.channelSubscription.subscribe();
+
     centrifuge.connect();
 
     // TODO: Подумать как сделать обработку ошибок, вдруг не подрубились

@@ -133,8 +133,6 @@ onMounted(async () => {
     tab.value = route.query.tab as "conversations" | "groups";
   }
 
-  centra.channelSubscription.subscribe();
-
   centra.channelSubscription.on("publication", ({ data }: { data: MessagesFromCentrifugo }) => {
     switch (data.type) {
       case "NEW_MESSAGE":
