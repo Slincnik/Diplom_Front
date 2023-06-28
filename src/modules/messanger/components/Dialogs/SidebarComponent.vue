@@ -36,14 +36,18 @@
         </v-list-item>
       </v-list>
     </v-menu>
-    <KeepAlive>
-      <component
-        :is="components[currentDialog]"
-        :key="currentDialog"
-        v-model="showDialog"
-        @closeModal="showDialog = false"
-      />
-    </KeepAlive>
+    <v-dialog :key="currentDialog" v-model="showDialog" width="auto">
+      <v-card :loading="isLoading">
+        <component
+          :is="components[currentDialog]"
+          :key="currentDialog"
+          :is-loading="isLoading"
+          :data="data"
+          :userId="userStore.getUser!.id"
+          @closeModal="showDialog = false"
+        />
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -51,14 +55,17 @@
 import { ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import useDialogsStore from "@/stores/dialogs";
+import useUserStore from "@/stores/user";
 
 //Components
 import ConversationsList from "./Conversations/ConversationsList.vue";
 import GroupsList from "./Groups/GroupsList.vue";
 import AddNewConversation from "../DialogContainer/AddNewConversation.vue";
 import AddNewGroup from "../DialogContainer/AddNewGroup.vue";
+import { useQuery } from "@tanstack/vue-query";
 
 const dialogStore = useDialogsStore();
+const userStore = useUserStore();
 const router = useRouter();
 
 const items = [
@@ -83,6 +90,12 @@ const isOver = ref(false);
 const showMenu = ref(false);
 const showDialog = ref(false);
 const currentDialog = ref<"conversation" | "group">("conversation");
+
+const { isLoading, data } = useQuery({
+  queryKey: ["users"],
+  queryFn: () => dialogStore.getUsers(),
+  keepPreviousData: true,
+});
 
 const menuClicked = (type: "conversation" | "group") => {
   showDialog.value = true;
